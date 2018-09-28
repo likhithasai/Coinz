@@ -60,14 +60,13 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     private fun initializeLocationEngine(){
         locationEngine = LocationEngineProvider(this).obtainBestLocationEngineAvailable()
         locationEngine?.priority = LocationEnginePriority.HIGH_ACCURACY
+        locationEngine?.addLocationEngineListener(this)
         locationEngine?.activate()
 
         val lastLocation = locationEngine?.lastLocation
         if (lastLocation != null) {
             originLocation = lastLocation
             setCameraPosition(lastLocation)
-        } else {
-            locationEngine?.addLocationEngineListener(this)
         }
     }
 
