@@ -2,9 +2,10 @@ package com.apps.likhithasai.coinz
 
 import android.location.Location
 import android.support.v7.app.AppCompatActivity
-import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
+import android.os.*
+import android.util.Log
+import android.widget.Toast
+import java.net.HttpURLConnection
 import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineListener
 import com.mapbox.android.core.location.LocationEnginePriority
@@ -16,31 +17,72 @@ import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
+import com.mapbox.geojson.*;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
+import com.mapbox.mapboxsdk.style.light.Position;
+import java.io.IOException
 
-class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineListener {
+class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback {
 
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
     private lateinit var permissionManager: PermissionsManager
     private lateinit var originLocation: Location
+    private val tag = "MainActivity"
 
     private var locationEngine: LocationEngine? = null
     private var locationLayerPlugin: LocationLayerPlugin? = null
 
-    constructor(parcel: Parcel) : this() {
-        originLocation = parcel.readParcelable(Location::class.java.classLoader)
-    } //WHAT IS THIS ?
+    val CONNECTION_TIMEOUT_MILLISECONDS = 15000
+    val CONNECTION_READTIMEOUT_MILLISECONDS = 10000
+
+    object DownloadCompleteRunner: DownloadCompleteListener{
+        var result : String?= null
+        override fun downloadComplete(result: String) {
+            this.result = result;
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         Mapbox.getInstance(applicationContext, getString(R.string.access_token))
         mapView = findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
+        Log.d(tag, "[onMapReady] DOES LOGGING WORK")
         mapView.getMapAsync { mapboxMap ->
+            map = mapboxMap
+            enableLocation()
+            val url = "http://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson"
+            val mapfeat = DownloadFeaturesTask(DownloadCompleteRunner).execute(url).get()
+
+            var featureCollection:FeatureCollection = FeatureCollection.fromJson(mapfeat)
+            var features:List<Feature> ?= featureCollection.features()
+
+            for (f in features!!.iterator()) {
+                if (f.geometry() is Point) {
+                    Log.d(tag,"Inside the for loop for adding markers")
+                    val point = f.geometry() as Point
+                    map.addMarker(MarkerOptions().position(LatLng(point.latitude(), point.longitude())))
+                }
+            }
+
+
+        }
+
+    }
+
+   override fun onMapReady(mapboxMap: MapboxMap?) {
+        Log.d(tag,"Inside the onMapReadyCallback")
+        if (mapboxMap == null) {
+            Log.d(tag, "[onMapReady] mapboxMap is null")
+        } else {
+            Log.d(tag,"Inside the onMapReadyCallback")
             map = mapboxMap
             enableLocation()
         }
@@ -154,13 +196,5 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         mapView.onLowMemory()
     }
 
-    companion object CREATOR : Parcelable.Creator<MainActivity> {
-        override fun createFromParcel(parcel: Parcel): MainActivity {
-            return MainActivity(parcel)
-        }
 
-        override fun newArray(size: Int): Array<MainActivity?> {
-            return arrayOfNulls(size)
-        }
-    }
 }
