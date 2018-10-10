@@ -54,6 +54,16 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     val YELLOW = "#ffdf00"
     val GREEN = "#008000"
 
+    fun pickColorString(hex: String):String {
+        when (hex) {
+            PURPLE -> return "p"
+            RED -> return "r"
+            GREEN -> return "g"
+            YELLOW -> return "y"
+        }
+        return ""
+    }
+
     object DownloadCompleteRunner: DownloadCompleteListener{
         var result : String?= null
         override fun downloadComplete(result: String) {
@@ -82,20 +92,21 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
                 if (f.geometry() is Point) {
                     Log.d(tag,"Inside the for loop for adding markers")
                     val point = f.geometry() as Point
-                    var str:String = ""
+                    var colorStr:String = ""
                     val markerColour = f.getStringProperty("marker-color")
-                    if (markerColour.equals(RED)){
-                        str += "r"
-                    } else if (markerColour.equals(GREEN)){
-                        str += "g"
-                    } else if (markerColour.equals(YELLOW)){
-                        str += "y"
-                    } else {
-                        str += "p"
-                    }
+                    colorStr = pickColorString(markerColour)
+//                    if (markerColour.equals(RED)){
+//                        str += "r"
+//                    } else if (markerColour.equals(GREEN)){
+//                        str += "g"
+//                    } else if (markerColour.equals(YELLOW)){
+//                        str += "y"
+//                    } else {
+//                        str += "p"
+//                    }
 
                     val no = f.getStringProperty("marker-symbol")
-                    val resId = resources.getIdentifier(str+no, "drawable", packageName)
+                    val resId = resources.getIdentifier(colorStr+no, "drawable", packageName)
                     val iconFactory = IconFactory.getInstance(this@MainActivity)
                     val icon = iconFactory.fromResource(resId)
                     map.addMarker(MarkerOptions().position(LatLng(point.latitude(), point.longitude())).setIcon(icon))
