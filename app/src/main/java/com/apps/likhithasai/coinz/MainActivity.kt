@@ -1,5 +1,6 @@
 package com.apps.likhithasai.coinz
 
+import android.graphics.Bitmap
 import android.location.Location
 import android.support.v7.app.AppCompatActivity
 import android.os.*
@@ -22,9 +23,17 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
 import com.mapbox.geojson.*;
+import com.mapbox.mapboxsdk.annotations.Icon
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
-import com.mapbox.mapboxsdk.style.light.Position;
+import com.mapbox.mapboxsdk.annotations.IconFactory
+import android.graphics.drawable.Drawable
+import android.support.v4.content.ContextCompat
+import com.mapbox.mapboxsdk.style.light.Position
 import java.io.IOException
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import com.mapbox.mapboxsdk.annotations.Marker
 
 class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback {
 
@@ -39,6 +48,11 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 
     val CONNECTION_TIMEOUT_MILLISECONDS = 15000
     val CONNECTION_READTIMEOUT_MILLISECONDS = 10000
+
+    val PURPLE = "#0000ff"
+    val RED = "#ff0000"
+    val YELLOW = "#ffdf00"
+    val GREEN = "#008000"
 
     object DownloadCompleteRunner: DownloadCompleteListener{
         var result : String?= null
@@ -68,14 +82,29 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
                 if (f.geometry() is Point) {
                     Log.d(tag,"Inside the for loop for adding markers")
                     val point = f.geometry() as Point
-                    map.addMarker(MarkerOptions().position(LatLng(point.latitude(), point.longitude())))
+                    var str:String = ""
+                    val markerColour = f.getStringProperty("marker-color")
+                    if (markerColour.equals(RED)){
+                        str += "r"
+                    } else if (markerColour.equals(GREEN)){
+                        str += "g"
+                    } else if (markerColour.equals(YELLOW)){
+                        str += "y"
+                    } else {
+                        str += "p"
+                    }
+
+                    val no = f.getStringProperty("marker-symbol")
+                    val resId = resources.getIdentifier(str+no, "drawable", packageName)
+                    val iconFactory = IconFactory.getInstance(this@MainActivity)
+                    val icon = iconFactory.fromResource(resId)
+                    map.addMarker(MarkerOptions().position(LatLng(point.latitude(), point.longitude())).setIcon(icon))
+
                 }
             }
-
-
         }
 
-    }
+}
 
    override fun onMapReady(mapboxMap: MapboxMap?) {
         Log.d(tag,"Inside the onMapReadyCallback")
