@@ -42,6 +42,8 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     private lateinit var permissionManager: PermissionsManager
     private lateinit var originLocation: Location
     private val tag = "MainActivity"
+    //Probably should be a hashmap with coin id ? but shall see
+    private val markers: kotlin.collections.MutableList<Marker> = java.util.ArrayList()
 
     private var locationEngine: LocationEngine? = null
     private var locationLayerPlugin: LocationLayerPlugin? = null
@@ -77,53 +79,47 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 
         Mapbox.getInstance(applicationContext, getString(R.string.access_token))
         mapView = findViewById(R.id.mapView)
-        mapView.onCreate(savedInstanceState)
+        mapView?.onCreate(savedInstanceState)
         Log.d(tag, "[onMapReady] DOES LOGGING WORK")
-        mapView.getMapAsync { mapboxMap ->
-            map = mapboxMap
-            enableLocation()
-            val url = "http://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson"
-            val mapfeat = DownloadFeaturesTask(DownloadCompleteRunner).execute(url).get()
+        mapView?.getMapAsync (this)
 
-            var featureCollection:FeatureCollection = FeatureCollection.fromJson(mapfeat)
-            var features:List<Feature> ?= featureCollection.features()
+    }
 
-            for (f in features!!.iterator()) {
-                if (f.geometry() is Point) {
-                    Log.d(tag,"Inside the for loop for adding markers")
-                    val point = f.geometry() as Point
-                    var colorStr:String = ""
-                    val markerColour = f.getStringProperty("marker-color")
-                    colorStr = pickColorString(markerColour)
-//                    if (markerColour.equals(RED)){
-//                        str += "r"
-//                    } else if (markerColour.equals(GREEN)){
-//                        str += "g"
-//                    } else if (markerColour.equals(YELLOW)){
-//                        str += "y"
-//                    } else {
-//                        str += "p"
-//                    }
-
-                    val no = f.getStringProperty("marker-symbol")
-                    val resId = resources.getIdentifier(colorStr+no, "drawable", packageName)
-                    val iconFactory = IconFactory.getInstance(this@MainActivity)
-                    val icon = iconFactory.fromResource(resId)
-                    map.addMarker(MarkerOptions().position(LatLng(point.latitude(), point.longitude())).setIcon(icon))
-
-                }
-            }
-        }
-
-}
-
-   override fun onMapReady(mapboxMap: MapboxMap?) {
-        Log.d(tag,"Inside the onMapReadyCallback")
+    override fun onMapReady(mapboxMap: MapboxMap?) {
         if (mapboxMap == null) {
             Log.d(tag, "[onMapReady] mapboxMap is null")
         } else {
-            Log.d(tag,"Inside the onMapReadyCallback")
             map = mapboxMap
+            Log.d(tag, "[onMapReady] inside onMapReady")
+            map?.uiSettings?.isCompassEnabled = true
+            map?.uiSettings?.isZoomControlsEnabled = true
+            val url = "http://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson"
+            val mapfeat = DownloadFeaturesTask(DownloadCompleteRunner).execute(url).get()
+
+            var featureCollection: FeatureCollection = FeatureCollection.fromJson(mapfeat)
+            var features: List<Feature>? = featureCollection.features()
+
+            for (f in features!!.iterator()) {
+                if (f.geometry() is Point) {
+                    Log.d(tag, "Inside the for loop for adding markers")
+                    val point = f.geometry() as Point
+                    var colorStr: String = ""
+                    val markerColour = f.getStringProperty("marker-color")
+                    colorStr = pickColorString(markerColour)
+                    val no = f.getStringProperty("marker-symbol")
+                    val id = f.getStringProperty("id")
+                    //Getting the drawable resource according color and maker symbol
+                    val resId = resources.getIdentifier(colorStr + no, "drawable", packageName)
+                    //Creating the icon from the drawable resource obtained
+                    val iconFactory = IconFactory.getInstance(this@MainActivity)
+                    val icon = iconFactory.fromResource(resId)
+                    //Adding the markers to the map
+                    val m = map.addMarker(MarkerOptions().position(LatLng(point.latitude(), point.longitude())).setIcon(icon))
+                    //Adding marker to the list
+                    markers.add(m)
+
+                }
+            }
             enableLocation()
         }
     }
@@ -180,10 +176,27 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     }
 
     override fun onLocationChanged(location: Location?) {
-        location?.let {
-            originLocation = location
-            setCameraPosition(location)
+//       location?.let {
+//            originLocation = location
+//            setCameraPosition(location)
+//        }
+//         Don't really need this...Do I
+        val distances = FloatArray(10)
+        var coinCollected: Marker? = null
+
+        for (marker in markers) {
+            Location.distanceBetween(location!!.latitude,location.longitude,
+                    marker.position.latitude,marker.position.longitude,distances)
+            if (distances[0] <= location!!.accuracy && distances[0] <= 25) {
+                marker.remove()
+                Toast.makeText(this, "Coin collected!", Toast.LENGTH_SHORT).show()
+                coinCollected = marker
+            }
         }
+
+        markers.remove(coinCollected)
+        val size = markers.size
+        Toast.makeText(this, "There are now ${size} markers", Toast.LENGTH_SHORT).show()
     }
 
     @SuppressWarnings("MissingPermission")
