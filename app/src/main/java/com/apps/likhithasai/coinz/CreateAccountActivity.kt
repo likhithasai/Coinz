@@ -39,10 +39,10 @@ class CreateAccountActivity:AppCompatActivity() {
         etPassword = findViewById<View>(R.id.et_password) as EditText
         btnCreateAccount = findViewById<View>(R.id.btn_register) as Button
         mProgressBar = ProgressBar(this)
-       /*mDatabase = FirebaseDatabase.getInstance()
-        mDatabaseReference = mDatabase!!.reference!!.child("Users")
-        mAuth = FirebaseAuth.getInstance()
-        btnCreateAccount!!.setOnClickListener { createNewAccount() }*/
+        /*mDatabase = FirebaseDatabase.getInstance()
+         mDatabaseReference = mDatabase!!.reference!!.child("Users")
+         mAuth = FirebaseAuth.getInstance()
+         btnCreateAccount!!.setOnClickListener { createNewAccount() }*/
     }
 
     //CREATE ACCOUNT METHODS HERE...
