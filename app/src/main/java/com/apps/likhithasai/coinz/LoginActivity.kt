@@ -9,13 +9,16 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import android.text.TextUtils
 import android.util.Log
-
+import com.google.firebase.auth.UserProfileChangeRequest
+import android.support.annotation.NonNull
+import android.view.Window
+import android.view.WindowManager
 
 
 class LoginActivity: AppCompatActivity() {
     private val TAG = "LoginActivity"
     //global variables
-    private var email: String? = null
+    //private var email: String? = null
     private var password: String? = null
     //UI elements
     private var tvForgotPassword: TextView? = null
@@ -29,6 +32,12 @@ class LoginActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        //Remove notification bar
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_login)
         initialise()
     }
@@ -41,15 +50,16 @@ class LoginActivity: AppCompatActivity() {
         btnCreateAccount = findViewById<View>(R.id.btn_register_account) as Button
         mProgressBar = ProgressBar(this)
         mAuth = FirebaseAuth.getInstance()
-        btnCreateAccount!!
-                .setOnClickListener { startActivity(Intent(this@LoginActivity,
-                        CreateAccountActivity::class.java)) }
+//        btnCreateAccount!!
+//                .setOnClickListener { startActivity(Intent(this@LoginActivity,
+//                        CreateAccountActivity::class.java)) }
         btnLogin!!.setOnClickListener { loginUser() }
     }
 
 
     private fun loginUser() {
-        email = etEmail?.text.toString()
+        val email = etEmail?.text.toString()
+        var mName:String  = "m.likhi"
         password = etPassword?.text.toString()
         if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)) {
             Log.d(TAG, "Logging in user.")
@@ -57,6 +67,11 @@ class LoginActivity: AppCompatActivity() {
                     .addOnCompleteListener(this) { task ->
                         if (task.isSuccessful) {
                             // Sign in success, update UI with signed-in user's information
+                            val user = mAuth?.getCurrentUser()
+                            val profileUpdates = UserProfileChangeRequest.Builder()
+                                    .setDisplayName(mName).build()
+                            user?.updateProfile(profileUpdates)
+
                             Log.d(TAG, "signInWithEmail:success")
                             updateUI()
                         } else {
@@ -73,7 +88,7 @@ class LoginActivity: AppCompatActivity() {
     }
 
     private fun updateUI() {
-        val intent = Intent(this@LoginActivity, MainActivity::class.java)
+        val intent = Intent(this@LoginActivity, Navigator::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
     }

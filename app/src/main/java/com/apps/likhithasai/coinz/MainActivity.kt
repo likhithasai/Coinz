@@ -1,5 +1,6 @@
 package com.apps.likhithasai.coinz
 
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.location.Location
 import android.support.v7.app.AppCompatActivity
@@ -45,16 +46,20 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     //Probably should be a hashmap with coin id ? but shall see
     private val markers: kotlin.collections.MutableList<Marker> = java.util.ArrayList()
 
+
+    private var sharedPreferences: SharedPreferences ?= null
+    private var editor:SharedPreferences.Editor ?= null;
+
     private var locationEngine: LocationEngine? = null
     private var locationLayerPlugin: LocationLayerPlugin? = null
 
-    val CONNECTION_TIMEOUT_MILLISECONDS = 15000
-    val CONNECTION_READTIMEOUT_MILLISECONDS = 10000
+    private val CONNECTION_TIMEOUT_MILLISECONDS = 15000
+    private val CONNECTION_READTIMEOUT_MILLISECONDS = 10000
 
-    val PURPLE = "#0000ff"
-    val RED = "#ff0000"
-    val YELLOW = "#ffdf00"
-    val GREEN = "#008000"
+    private val PURPLE = "#0000ff"
+    private val RED = "#ff0000"
+    private val YELLOW = "#ffdf00"
+    private val GREEN = "#008000"
 
     fun pickColorString(hex: String):String {
         when (hex) {
@@ -188,14 +193,14 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
             Location.distanceBetween(location!!.latitude,location.longitude,
                     marker.position.latitude,marker.position.longitude,distances)
             if (distances[0] <= location!!.accuracy && distances[0] <= 25) {
+                Log.d(tag, "Coin collected!")
                 marker.remove()
-                Toast.makeText(this, "Coin collected!", Toast.LENGTH_SHORT).show()
                 coinCollected = marker
             }
         }
-
         markers.remove(coinCollected)
         val size = markers.size
+        Log.d(tag, "Coins now: ${size}")
         Toast.makeText(this, "There are now ${size} markers", Toast.LENGTH_SHORT).show()
     }
 

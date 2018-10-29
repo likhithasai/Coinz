@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/action_wallet"
+            android:title="Money Money Money"
+            android:icon="@drawable/ic_wallet"
+            />
+        <item
+            android:id="@+id/action_message"
+            android:title="Feeling Kind ?"
+            android:icon="@drawable/ic_message"
+            />
+        <item
+            android:id="@+id/action_health"
+            android:title="For the fitness freaks"
+            android:icon="@drawable/ic_health"
+            />
+        <item
+            android:id="@+id/action_leaderboard"
+            android:title="For the competitive ones"
+            android:icon="@drawable/ic_leaderboard"
+            />
+    </group>
+
+</menu>
