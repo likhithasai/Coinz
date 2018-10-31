@@ -15,11 +15,17 @@ import java.net.URL
 class DownloadFeaturesTask(private val caller: DownloadCompleteListener) : AsyncTask<String, Void, String>() {
         var context:Context ?= null
         private val tag = "DownloadFeaturesTask"
+
+
+
         override fun doInBackground(vararg urls: String): String = try {
             loadFileFromNetwork(urls[0])
         } catch (e: IOException) {
             "Unable to load content. Check your network connection"
         }
+
+
+
         private fun loadFileFromNetwork(urlString: String): String {
             Log.d(tag, "[onMapReady] Inside loadFileFromNetwork")
             val stream : InputStream = downloadUrl(urlString)

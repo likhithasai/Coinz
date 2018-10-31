@@ -67,7 +67,7 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         // Handle navigation view item clicks here.
         when (item.itemId) {
             R.id.action_health -> {
-                intent = Intent(this, MainActivity::class.java)
+                intent = Intent(this, PedometerActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 this.startActivity(intent)
             }

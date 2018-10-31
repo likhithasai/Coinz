@@ -44,14 +44,15 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     private lateinit var originLocation: Location
     private val tag = "MainActivity"
     //Probably should be a hashmap with coin id ? but shall see
-    private val markers: kotlin.collections.MutableList<Marker> = java.util.ArrayList()
+    //private val markers: kotlin.collections.MutableList<Marker> = java.util.ArrayList()
 
-
-    private var sharedPreferences: SharedPreferences ?= null
-    private var editor:SharedPreferences.Editor ?= null;
+    private var markers = HashMap<Marker, String>()
 
     private var locationEngine: LocationEngine? = null
     private var locationLayerPlugin: LocationLayerPlugin? = null
+
+    private var currentUser = ""
+    private var coinsCollected:MutableSet<String> ?= null
 
     private val CONNECTION_TIMEOUT_MILLISECONDS = 15000
     private val CONNECTION_READTIMEOUT_MILLISECONDS = 10000
@@ -60,6 +61,9 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     private val RED = "#ff0000"
     private val YELLOW = "#ffdf00"
     private val GREEN = "#008000"
+
+    var prefs: SharedPrefs? = null
+
 
     fun pickColorString(hex: String):String {
         when (hex) {
@@ -78,11 +82,17 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         }
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        prefs = SharedPrefs(applicationContext);
+        currentUser = prefs!!.currentUser;
+        coinsCollected = prefs!!.coinsCollected?.toMutableSet()
+
         Mapbox.getInstance(applicationContext, getString(R.string.access_token))
+
         mapView = findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
         Log.d(tag, "[onMapReady] DOES LOGGING WORK")
@@ -106,23 +116,30 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 
             for (f in features!!.iterator()) {
                 if (f.geometry() is Point) {
-                    Log.d(tag, "Inside the for loop for adding markers")
-                    val point = f.geometry() as Point
-                    var colorStr: String = ""
-                    val markerColour = f.getStringProperty("marker-color")
-                    colorStr = pickColorString(markerColour)
-                    val no = f.getStringProperty("marker-symbol")
                     val id = f.getStringProperty("id")
-                    //Getting the drawable resource according color and maker symbol
-                    val resId = resources.getIdentifier(colorStr + no, "drawable", packageName)
-                    //Creating the icon from the drawable resource obtained
-                    val iconFactory = IconFactory.getInstance(this@MainActivity)
-                    val icon = iconFactory.fromResource(resId)
-                    //Adding the markers to the map
-                    val m = map.addMarker(MarkerOptions().position(LatLng(point.latitude(), point.longitude())).setIcon(icon))
-                    //Adding marker to the list
-                    markers.add(m)
 
+                    if(!coinsCollected?.contains(id)!!){
+
+                        Log.d(tag, "Inside the for loop for adding markers")
+                        val point = f.geometry() as Point
+                        var colorStr: String = ""
+                        val markerColour = f.getStringProperty("marker-color")
+                        colorStr = pickColorString(markerColour)
+                        val no = f.getStringProperty("marker-symbol")
+                        //Getting the drawable resource according color and maker symbol
+                        val resId = resources.getIdentifier(colorStr + no, "drawable", packageName)
+                        //Creating the icon from the drawable resource obtained
+                        val iconFactory = IconFactory.getInstance(this@MainActivity)
+                        val icon = iconFactory.fromResource(resId)
+                        //Adding the markers to the map
+                        val m = map.addMarker(MarkerOptions().position(LatLng(point.latitude(), point.longitude())).setIcon(icon))
+                        //Adding marker to the list
+                        markers[m] = id
+                    }
+                    else{
+
+                        Log.d(tag, "Coin collected ${id} or something wrong lol")
+                    }
                 }
             }
             enableLocation()
@@ -188,14 +205,19 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 //         Don't really need this...Do I
         val distances = FloatArray(10)
         var coinCollected: Marker? = null
+        var coinId:String? = null
 
-        for (marker in markers) {
+        for ((marker,id) in markers!!.iterator()) {
             Location.distanceBetween(location!!.latitude,location.longitude,
                     marker.position.latitude,marker.position.longitude,distances)
             if (distances[0] <= location!!.accuracy && distances[0] <= 25) {
                 Log.d(tag, "Coin collected!")
                 marker.remove()
+                coinId = id
                 coinCollected = marker
+                Log.d(tag, "Coin ID: ${coinId}")
+                coinsCollected!!.add(id)
+
             }
         }
         markers.remove(coinCollected)
@@ -234,6 +256,8 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         locationEngine?.removeLocationUpdates()
         locationLayerPlugin?.onStop()
         mapView.onStop()
+
+        prefs?.coinsCollected = coinsCollected
     }
 
     override fun onDestroy() {

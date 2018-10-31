@@ -32,12 +32,12 @@
         <activity
             android:name=".StatsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MainActivity" />
         <activity android:name=".LeaderboardActivity" />
         <activity
             android:name=".Navigator"
             android:label="@string/title_activity_navigator"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".MainActivity" />
     </application>
 
 </manifest>
