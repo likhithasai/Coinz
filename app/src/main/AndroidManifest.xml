@@ -29,15 +29,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".StatsActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".LeaderboardActivity" />
         <activity
             android:name=".Navigator"
             android:label="@string/title_activity_navigator"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".MainActivity" />
+        <activity android:name=".WalletActivity"
+                android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
