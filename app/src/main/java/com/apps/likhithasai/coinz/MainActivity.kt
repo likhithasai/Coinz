@@ -27,6 +27,9 @@ import com.mapbox.geojson.*;
 import com.mapbox.mapboxsdk.annotations.Icon
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.annotations.IconFactory
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject
 import android.graphics.drawable.Drawable
 import android.support.v4.content.ContextCompat
 import com.mapbox.mapboxsdk.style.light.Position
@@ -34,7 +37,9 @@ import java.io.IOException
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import com.google.gson.Gson
 import com.mapbox.mapboxsdk.annotations.Marker
+import java.math.BigDecimal
 
 class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback {
 
@@ -46,7 +51,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     //Probably should be a hashmap with coin id ? but shall see
     //private val markers: kotlin.collections.MutableList<Marker> = java.util.ArrayList()
 
-    private var markers = HashMap<Marker, String>()
+    private var markers = HashMap<Marker, Coin>()
 
     private var locationEngine: LocationEngine? = null
     private var locationLayerPlugin: LocationLayerPlugin? = null
@@ -61,6 +66,11 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     private val RED = "#ff0000"
     private val YELLOW = "#ffdf00"
     private val GREEN = "#008000"
+
+    private var peny:BigDecimal = BigDecimal.ZERO
+    private var dolr:BigDecimal = BigDecimal.ZERO
+    private var shil:BigDecimal = BigDecimal.ZERO
+    private var quid:BigDecimal = BigDecimal.ZERO
 
     var prefs: SharedPrefs? = null
 
@@ -89,7 +99,18 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 
         prefs = SharedPrefs(applicationContext);
         currentUser = prefs!!.currentUser;
-        coinsCollected = prefs!!.coinsCollected?.toMutableSet()
+
+        prefs!!.peny = "0"
+        prefs!!.shil = "0"
+        prefs!!.dolr = "0"
+        prefs!!.quid = "0"
+
+        Log.d(tag, "On start, peny: "+ prefs!!.peny)
+        Log.d(tag, "On start, dolr: "+ prefs!!.dolr)
+        Log.d(tag, "On start, shil: "+ prefs!!.shil)
+        Log.d(tag, "On start, quid: "+ prefs!!.quid)
+
+      //  coinsCollected = prefs!!.coinsCollected?.toMutableSet()
 
         Mapbox.getInstance(applicationContext, getString(R.string.access_token))
 
@@ -97,7 +118,6 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         mapView?.onCreate(savedInstanceState)
         Log.d(tag, "[onMapReady] DOES LOGGING WORK")
         mapView?.getMapAsync (this)
-
     }
 
     override fun onMapReady(mapboxMap: MapboxMap?) {
@@ -111,6 +131,16 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
             val url = "http://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson"
             val mapfeat = DownloadFeaturesTask(DownloadCompleteRunner).execute(url).get()
 
+           // To get the rates
+            val jsonObj = JSONObject(mapfeat)
+            val rates = jsonObj.getJSONObject("rates")
+
+            prefs!!.shil_rate = rates.getString("SHIL")
+            prefs!!.dolr_rate = rates.getString("DOLR")
+            prefs!!.quid_rate = rates.getString("RATE")
+            prefs!!.peny_rate = rates.getString("PENY")
+
+
             var featureCollection: FeatureCollection = FeatureCollection.fromJson(mapfeat)
             var features: List<Feature>? = featureCollection.features()
 
@@ -118,14 +148,19 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
                 if (f.geometry() is Point) {
                     val id = f.getStringProperty("id")
 
-                    if(!coinsCollected?.contains(id)!!){
+                  //  if(!coinsCollected?.contains(id)!!){
 
                         Log.d(tag, "Inside the for loop for adding markers")
                         val point = f.geometry() as Point
+
                         var colorStr: String = ""
                         val markerColour = f.getStringProperty("marker-color")
                         colorStr = pickColorString(markerColour)
+
                         val no = f.getStringProperty("marker-symbol")
+                        val currency = f.getStringProperty("currency")
+                        val value = f.getStringProperty("value")
+
                         //Getting the drawable resource according color and maker symbol
                         val resId = resources.getIdentifier(colorStr + no, "drawable", packageName)
                         //Creating the icon from the drawable resource obtained
@@ -134,17 +169,19 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
                         //Adding the markers to the map
                         val m = map.addMarker(MarkerOptions().position(LatLng(point.latitude(), point.longitude())).setIcon(icon))
                         //Adding marker to the list
-                        markers[m] = id
-                    }
-                    else{
-
-                        Log.d(tag, "Coin collected ${id} or something wrong lol")
-                    }
+                        val coin = Coin(id = id, currency = currency, value = value)
+                        markers[m] = coin
+//                    }
+//                    else{
+//
+//                        Log.d(tag, "Coin collected ${id} or something wrong lol")
+//                    }
                 }
             }
             enableLocation()
         }
     }
+
 
     fun enableLocation() {
         if (PermissionsManager.areLocationPermissionsGranted(this)){
@@ -204,27 +241,47 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 //        }
 //         Don't really need this...Do I
         val distances = FloatArray(10)
-        var coinCollected: Marker? = null
-        var coinId:String? = null
+        var loccoinCollected: Marker? = null
+        var coinCollected:Coin ?= null
 
-        for ((marker,id) in markers!!.iterator()) {
+        for ((marker,coin) in markers!!.iterator()) {
             Location.distanceBetween(location!!.latitude,location.longitude,
                     marker.position.latitude,marker.position.longitude,distances)
             if (distances[0] <= location!!.accuracy && distances[0] <= 25) {
                 Log.d(tag, "Coin collected!")
                 marker.remove()
-                coinId = id
-                coinCollected = marker
-                Log.d(tag, "Coin ID: ${coinId}")
-                coinsCollected!!.add(id)
+                loccoinCollected = marker
+                coinCollected = coin
+                Log.d(tag, "Coin ID: ${coinCollected.id}")
+                //coinsCollected!!.add(coin.id)
+                when (coinCollected!!.currency) {
+                    "PENY" -> {
+                        peny += coinCollected.value.toBigDecimal()
+                        Log.d(tag, "After adding the prefs-peny value:" + peny.toString())
+                    }
+                    "DOLR" -> {
+                        dolr += coinCollected.value.toBigDecimal()
+                        Log.d(tag, "After adding the prefs-dolr value:" + dolr.toString())
+                    }
+                    "SHIL" -> {
+                        shil += coinCollected.value.toBigDecimal()
+                        Log.d(tag, "After adding the prefs-shil value:" + shil.toString())
+                    }
+                    "QUID" -> {
+                        quid += coinCollected.value.toBigDecimal()
+                        Log.d(tag, "After adding the prefs-quid value:" + quid.toString())
+                    }
+
+                }
 
             }
         }
-        markers.remove(coinCollected)
+        markers.remove(loccoinCollected)
         val size = markers.size
         Log.d(tag, "Coins now: ${size}")
         Toast.makeText(this, "There are now ${size} markers", Toast.LENGTH_SHORT).show()
     }
+
 
     @SuppressWarnings("MissingPermission")
     override fun onConnected() {
@@ -257,7 +314,21 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         locationLayerPlugin?.onStop()
         mapView.onStop()
 
-        prefs?.coinsCollected = coinsCollected
+        val penyn = prefs!!.peny.toBigDecimal() + peny
+        val dolrn = prefs!!.dolr.toBigDecimal() + dolr
+        val shiln = prefs!!.shil.toBigDecimal() + shil
+        val quidn = prefs!!.quid.toBigDecimal() + quid
+
+        prefs!!.peny = penyn.toString()
+        prefs!!.dolr = dolrn.toString()
+        prefs!!.shil = shiln.toString()
+        prefs!!.quid = quidn.toString()
+
+        Log.d(tag, "On stop, peny: "+ prefs!!.peny)
+        Log.d(tag, "On stop, dolr: "+ prefs!!.dolr)
+        Log.d(tag, "On stop, shil: "+ prefs!!.shil)
+        Log.d(tag, "On stop, quid: "+ prefs!!.quid)
+        //prefs?.coinsCollected = coinsCollected
     }
 
     override fun onDestroy() {

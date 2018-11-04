@@ -81,6 +81,9 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             }
             R.id.action_wallet -> {
+                intent = Intent(this, WalletActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                this.startActivity(intent)
 
             }
         }
