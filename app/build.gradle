@@ -48,4 +48,6 @@ dependencies {
     implementation 'android.arch.core:common:1.1.1'
 
     implementation "com.android.support:support-v4:27.1.1"
+    implementation 'com.google.firebase:firebase-database:11.6.0'
+    implementation 'com.google.firebase:firebase-firestore:11.6.0'
 }
