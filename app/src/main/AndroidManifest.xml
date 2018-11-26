@@ -37,6 +37,9 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".WalletActivity"
                 android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".MessageActivity"></activity>
+        <activity android:name=".PedometerActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

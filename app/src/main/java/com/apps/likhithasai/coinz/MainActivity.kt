@@ -37,9 +37,16 @@ import java.io.IOException
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
 import com.mapbox.mapboxsdk.annotations.Marker
 import java.math.BigDecimal
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
+import kotlin.collections.HashMap
 
 class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback {
 
@@ -53,11 +60,15 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 
     private var markers = HashMap<Marker, Coin>()
 
+    private var walletdb = HashMap<String, Any>()
+
     private var locationEngine: LocationEngine? = null
     private var locationLayerPlugin: LocationLayerPlugin? = null
 
     private var currentUser = ""
+
     private var coinsCollected:MutableSet<String> ?= null
+    private var wallet:MutableSet<String> ?= null
 
     private val CONNECTION_TIMEOUT_MILLISECONDS = 15000
     private val CONNECTION_READTIMEOUT_MILLISECONDS = 10000
@@ -67,12 +78,14 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     private val YELLOW = "#ffdf00"
     private val GREEN = "#008000"
 
-    private var peny:BigDecimal = BigDecimal.ZERO
-    private var dolr:BigDecimal = BigDecimal.ZERO
-    private var shil:BigDecimal = BigDecimal.ZERO
-    private var quid:BigDecimal = BigDecimal.ZERO
+//    private var peny:BigDecimal = BigDecimal.ZERO
+//    private var dolr:BigDecimal = BigDecimal.ZERO
+//    private var shil:BigDecimal = BigDecimal.ZERO
+//    private var quid:BigDecimal = BigDecimal.ZERO
 
     var prefs: SharedPrefs? = null
+
+    private var downloadDate = "2018/10/03"
 
 
     fun pickColorString(hex: String):String {
@@ -99,18 +112,16 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 
         prefs = SharedPrefs(applicationContext);
         currentUser = prefs!!.currentUser;
+        Log.d(tag, "Current user: $currentUser")
 
-        prefs!!.peny = "0"
-        prefs!!.shil = "0"
-        prefs!!.dolr = "0"
-        prefs!!.quid = "0"
 
         Log.d(tag, "On start, peny: "+ prefs!!.peny)
         Log.d(tag, "On start, dolr: "+ prefs!!.dolr)
         Log.d(tag, "On start, shil: "+ prefs!!.shil)
         Log.d(tag, "On start, quid: "+ prefs!!.quid)
 
-      //  coinsCollected = prefs!!.coinsCollected?.toMutableSet()
+        coinsCollected = prefs!!.coinsCollected?.toMutableSet()
+        wallet = prefs!!.wallet?.toMutableSet()
 
         Mapbox.getInstance(applicationContext, getString(R.string.access_token))
 
@@ -128,16 +139,38 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
             Log.d(tag, "[onMapReady] inside onMapReady")
             map?.uiSettings?.isCompassEnabled = true
             map?.uiSettings?.isZoomControlsEnabled = true
-            val url = "http://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson"
-            val mapfeat = DownloadFeaturesTask(DownloadCompleteRunner).execute(url).get()
 
+            var date: Date = Calendar.getInstance().getTime();
+
+            // Display a date in day, month, year format
+            val formatter:DateFormat  = SimpleDateFormat("yyyy/MM/dd");
+            downloadDate = formatter.format(date);
+            Log.d(tag,"Today : " + downloadDate);
+
+            var mapfeat:String = ""
+
+            if (!downloadDate.equals(prefs!!.lastDownloadDate)){
+                val url = "http://homepages.inf.ed.ac.uk/stg/coinz/${downloadDate}/coinzmap.geojson"
+                mapfeat = DownloadFeaturesTask(DownloadCompleteRunner).execute(url).get()
+                prefs!!.mapfeat = mapfeat
+                prefs!!.lastDownloadDate = downloadDate
+            }
+            else {
+//                val url = "http://homepages.inf.ed.ac.uk/stg/coinz/${downloadDate}/coinzmap.geojson"
+//                mapfeat = DownloadFeaturesTask(DownloadCompleteRunner).execute(url).get()
+//                prefs!!.mapfeat = mapfeat
+                mapfeat = prefs!!.mapfeat
+            }
+            //val url = "http://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson"
+
+            Log.d(tag,"JSON FILE:" + mapfeat)
            // To get the rates
             val jsonObj = JSONObject(mapfeat)
             val rates = jsonObj.getJSONObject("rates")
 
             prefs!!.shil_rate = rates.getString("SHIL")
             prefs!!.dolr_rate = rates.getString("DOLR")
-            prefs!!.quid_rate = rates.getString("RATE")
+            prefs!!.quid_rate = rates.getString("QUID")
             prefs!!.peny_rate = rates.getString("PENY")
 
 
@@ -148,7 +181,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
                 if (f.geometry() is Point) {
                     val id = f.getStringProperty("id")
 
-                  //  if(!coinsCollected?.contains(id)!!){
+                    if(!coinsCollected?.contains(id)!!){
 
                         Log.d(tag, "Inside the for loop for adding markers")
                         val point = f.geometry() as Point
@@ -163,19 +196,22 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 
                         //Getting the drawable resource according color and maker symbol
                         val resId = resources.getIdentifier(colorStr + no, "drawable", packageName)
+
                         //Creating the icon from the drawable resource obtained
                         val iconFactory = IconFactory.getInstance(this@MainActivity)
                         val icon = iconFactory.fromResource(resId)
+
                         //Adding the markers to the map
                         val m = map.addMarker(MarkerOptions().position(LatLng(point.latitude(), point.longitude())).setIcon(icon))
+
                         //Adding marker to the list
                         val coin = Coin(id = id, currency = currency, value = value)
                         markers[m] = coin
-//                    }
-//                    else{
-//
-//                        Log.d(tag, "Coin collected ${id} or something wrong lol")
-//                    }
+                    }
+                    else{
+
+                        Log.d(tag, "Coin collected ${id} or something wrong lol")
+                    }
                 }
             }
             enableLocation()
@@ -242,7 +278,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 //         Don't really need this...Do I
         val distances = FloatArray(10)
         var loccoinCollected: Marker? = null
-        var coinCollected:Coin ?= null
+        //var coinCollected:Coin ?= null
 
         for ((marker,coin) in markers!!.iterator()) {
             Location.distanceBetween(location!!.latitude,location.longitude,
@@ -251,28 +287,13 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
                 Log.d(tag, "Coin collected!")
                 marker.remove()
                 loccoinCollected = marker
-                coinCollected = coin
-                Log.d(tag, "Coin ID: ${coinCollected.id}")
-                //coinsCollected!!.add(coin.id)
-                when (coinCollected!!.currency) {
-                    "PENY" -> {
-                        peny += coinCollected.value.toBigDecimal()
-                        Log.d(tag, "After adding the prefs-peny value:" + peny.toString())
-                    }
-                    "DOLR" -> {
-                        dolr += coinCollected.value.toBigDecimal()
-                        Log.d(tag, "After adding the prefs-dolr value:" + dolr.toString())
-                    }
-                    "SHIL" -> {
-                        shil += coinCollected.value.toBigDecimal()
-                        Log.d(tag, "After adding the prefs-shil value:" + shil.toString())
-                    }
-                    "QUID" -> {
-                        quid += coinCollected.value.toBigDecimal()
-                        Log.d(tag, "After adding the prefs-quid value:" + quid.toString())
-                    }
-
-                }
+                //coinCollected = coin
+                val coinCollected = downloadDate + coin.currency + coin.value
+                Log.d(tag, "Coin collected: $coinCollected")
+                //Log.d(tag, "Coin ID: ${coinCollected.id}")
+                coinsCollected!!.add(coin.id)
+                wallet!!.add(coinCollected)
+                walletdb!!.put(coin.id, coinCollected)
 
             }
         }
@@ -295,6 +316,12 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
             locationEngine?.requestLocationUpdates()
             locationLayerPlugin?.onStart()
         }
+
+        // use ”” as the default value (this might be the first time the app is run)
+        downloadDate = prefs!!.lastDownloadDate
+        // Write a message to ”logcat” (for debugging purposes)
+        Log.d(tag, "[onStart] Recalled lastDownloadDate is ’$downloadDate’")
+
         mapView.onStart()
     }
 
@@ -314,21 +341,16 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         locationLayerPlugin?.onStop()
         mapView.onStop()
 
-        val penyn = prefs!!.peny.toBigDecimal() + peny
-        val dolrn = prefs!!.dolr.toBigDecimal() + dolr
-        val shiln = prefs!!.shil.toBigDecimal() + shil
-        val quidn = prefs!!.quid.toBigDecimal() + quid
+        prefs!!.lastDownloadDate = downloadDate
+        prefs?.coinsCollected = coinsCollected
+        prefs?.wallet = wallet
 
-        prefs!!.peny = penyn.toString()
-        prefs!!.dolr = dolrn.toString()
-        prefs!!.shil = shiln.toString()
-        prefs!!.quid = quidn.toString()
+        val ref = FirebaseFirestore.getInstance().collection("users")
+        val documentId = prefs!!.currentUser
 
-        Log.d(tag, "On stop, peny: "+ prefs!!.peny)
-        Log.d(tag, "On stop, dolr: "+ prefs!!.dolr)
-        Log.d(tag, "On stop, shil: "+ prefs!!.shil)
-        Log.d(tag, "On stop, quid: "+ prefs!!.quid)
-        //prefs?.coinsCollected = coinsCollected
+        ref.document(documentId).set(walletdb).addOnCompleteListener {
+            Log.d(tag, "Things added")
+        }
     }
 
     override fun onDestroy() {

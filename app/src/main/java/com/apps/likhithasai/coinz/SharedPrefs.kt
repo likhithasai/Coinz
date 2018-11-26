@@ -13,13 +13,21 @@ class SharedPrefs(applicationContext: Context?) {
     var pref = applicationContext?.getApplicationContext()?.getSharedPreferences("MyPref", MODE_PRIVATE)
     var editor = pref?.edit()
 
+    var mapfeat: String
+        get() = pref!!.getString("map", "")
+        set(value) = pref!!.edit()!!.putString("map", value).apply()
+
     var currentUser : String
         get() = pref!!.getString("current user", "")
         set(value) = pref!!.edit()!!.putString("current user", value).apply()
 
     var coinsCollected: MutableSet<String>?
-        get() = pref!!.getStringSet("List", emptySet())
-        set(set) = editor!!.putStringSet("List", set).apply()
+        get() = pref!!.getStringSet("$currentUser coins", emptySet())
+        set(set) = editor!!.putStringSet("$currentUser coins", set).apply()
+
+    var wallet: MutableSet<String>?
+        get() = pref!!.getStringSet("$currentUser wallet", emptySet())
+        set(set) = editor!!.putStringSet("$currentUser wallet", set).apply()
 
     var peny : String
         get() = pref!!.getString("$currentUser total peny", "0")
@@ -55,5 +63,8 @@ class SharedPrefs(applicationContext: Context?) {
         get() = pref!!.getString("$currentUser shil rate", "0")
         set(value) = editor!!.putString("$currentUser shil rate", value).apply()
 
+    var lastDownloadDate: String
+        get() = pref!!.getString("lastDownloadDate", "")
+        set(value) = editor!!.putString("lastDownloadDate", value).apply()
 
 }

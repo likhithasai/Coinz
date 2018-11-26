@@ -29,6 +29,7 @@ class LoginActivity: AppCompatActivity() {
     private var mProgressBar: ProgressBar? = null
     //Firebase references
     private var mAuth: FirebaseAuth? = null
+    private var prefs: SharedPrefs? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +72,9 @@ class LoginActivity: AppCompatActivity() {
                             val profileUpdates = UserProfileChangeRequest.Builder()
                                     .setDisplayName(mName).build()
                             user?.updateProfile(profileUpdates)
-
+                            prefs = SharedPrefs(applicationContext)
+                            prefs!!.currentUser = user!!.uid
+                            //prefs!!.currentUser = user!!.uid
                             Log.d(TAG, "signInWithEmail:success")
                             updateUI()
                         } else {

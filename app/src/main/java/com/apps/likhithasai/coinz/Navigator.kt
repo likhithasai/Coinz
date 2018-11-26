@@ -72,6 +72,9 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 this.startActivity(intent)
             }
             R.id.action_message -> {
+                intent = Intent(this, MessageActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                this.startActivity(intent)
 
             }
             R.id.action_leaderboard -> {
