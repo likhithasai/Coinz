@@ -40,6 +40,7 @@ import android.graphics.Paint
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
 import com.mapbox.mapboxsdk.annotations.Marker
+import kotlinx.android.synthetic.main.activity_main.*
 import java.math.BigDecimal
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -82,6 +83,8 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 
     private var downloadDate = "2018/10/03"
 
+    var coinsConstraint:Int = 0
+
 
     fun pickColorString(hex: String):String {
         when (hex) {
@@ -109,11 +112,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         currentUser = prefs!!.currentUser;
         Log.d(tag, "Current user: $currentUser")
 
-
-        Log.d(tag, "On start, peny: "+ prefs!!.peny)
-        Log.d(tag, "On start, dolr: "+ prefs!!.dolr)
-        Log.d(tag, "On start, shil: "+ prefs!!.shil)
-        Log.d(tag, "On start, quid: "+ prefs!!.quid)
+        this.progressBar1.max = 25
 
         coinsCollected = prefs!!.coinsCollected?.toMutableSet()
         wallet = prefs!!.wallet?.toMutableSet()
@@ -289,6 +288,9 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
                 coinsCollected!!.add(coin.id)
                 wallet!!.add(coinCollected)
                 walletdb!!.put(coin.id, coinCollected)
+                if (coinsConstraint < 25){
+                    this.progressBar1.progress = coinsConstraint++
+                }
 
             }
         }
