@@ -19,21 +19,23 @@ class MessageActivity : AppCompatActivity() {
     var prefs:SharedPrefs ?= null
 
 
+    companion object {
+        const val COLLECTION_KEY = "Chat"
+        const val DOCUMENT_KEY = "Message"
+        const val NAME_FIELD = "Name"
+        const val TEXT_FIELD = "Text"
+    }
+
+    private val firestoreChat by lazy {
+        FirebaseFirestore.getInstance().collection(COLLECTION_KEY).document(DOCUMENT_KEY)
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_message)
         prefs = SharedPrefs(applicationContext)
 
-        val shil_rate = prefs!!.shil_rate
-        val dolr_rate = prefs!!.dolr_rate
-        val quid_rate = prefs!!.quid_rate
-        val peny_rate = prefs!!.peny_rate
-
-//        //The marquee for showing rates
-//        val tv = findViewById<TextView>(R.id.mywidget)
-//        tv.setText("Rates for today: SHIL to GOLD: ${shil_rate} DOLR to GOLD: ${dolr_rate} QUID to GOLD: ${quid_rate } PENY to GOLD: ${peny_rate}")
-//        tv!!.setSelected(true)  // Set focus to the textview
-//
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("None", "Top", "Bottom"))
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         positionSpinner.adapter = adapter
@@ -49,8 +51,34 @@ class MessageActivity : AppCompatActivity() {
                 val item = adapter.getItem(position)
             }
         }
+        realtimeUpdateListener()
+        btnSend.setOnClickListener{ sendMessage() }
+
+    }
 
 
+    private fun sendMessage() {
+        val newMessage = mapOf(
+                NAME_FIELD to userSend.text.toString(),
+                TEXT_FIELD to amtSend.text.toString())
+        firestoreChat.set(newMessage)
+                .addOnSuccessListener( {
+                    Toast.makeText(this@MessageActivity, "Message Sent", Toast.LENGTH_SHORT).show()
+                })
+                .addOnFailureListener { e -> Log.e("ERROR", e.message) }
+    }
+
+    private fun realtimeUpdateListener() {
+        firestoreChat.addSnapshotListener { documentSnapshot, e ->
+            when {
+                e != null -> Log.e("ERROR", e.message)
+                documentSnapshot != null && documentSnapshot.exists() -> {
+                    with(documentSnapshot) {
+                        txtDisp.text = "${data[NAME_FIELD]}:${data[TEXT_FIELD]}"
+                    }
+                }
+            }
+        }
     }
 
 

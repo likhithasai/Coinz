@@ -44,11 +44,11 @@ class LoginActivity: AppCompatActivity() {
     }
 
     private fun initialise() {
-        tvForgotPassword = findViewById<View>(R.id.tv_forgot_password) as TextView
-        etEmail = findViewById<View>(R.id.et_email) as EditText
-        etPassword = findViewById<View>(R.id.et_password) as EditText
-        btnLogin = findViewById<View>(R.id.btn_login) as Button
-        btnCreateAccount = findViewById<View>(R.id.btn_register_account) as Button
+        tvForgotPassword = findViewById(R.id.tv_forgot_password)
+        etEmail = findViewById(R.id.et_email)
+        etPassword = findViewById(R.id.et_password)
+        btnLogin = findViewById(R.id.btn_login)
+        btnCreateAccount = findViewById(R.id.btn_register_account)
         mProgressBar = ProgressBar(this)
         mAuth = FirebaseAuth.getInstance()
 //        btnCreateAccount!!
@@ -60,7 +60,10 @@ class LoginActivity: AppCompatActivity() {
 
     private fun loginUser() {
         val email = etEmail?.text.toString()
-        var mName:String  = "m.likhi"
+        //var mName:String  = email.substringBefore("@")
+        val split = email.split("@")
+        val mName = split[0]
+        Log.d(TAG, mName)
         password = etPassword?.text.toString()
         if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)) {
             Log.d(TAG, "Logging in user.")
@@ -74,7 +77,6 @@ class LoginActivity: AppCompatActivity() {
                             user?.updateProfile(profileUpdates)
                             prefs = SharedPrefs(applicationContext)
                             prefs!!.currentUser = user!!.uid
-                            //prefs!!.currentUser = user!!.uid
                             Log.d(TAG, "signInWithEmail:success")
                             updateUI()
                         } else {

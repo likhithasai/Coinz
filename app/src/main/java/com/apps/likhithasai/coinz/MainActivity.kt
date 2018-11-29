@@ -78,11 +78,6 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     private val YELLOW = "#ffdf00"
     private val GREEN = "#008000"
 
-//    private var peny:BigDecimal = BigDecimal.ZERO
-//    private var dolr:BigDecimal = BigDecimal.ZERO
-//    private var shil:BigDecimal = BigDecimal.ZERO
-//    private var quid:BigDecimal = BigDecimal.ZERO
-
     var prefs: SharedPrefs? = null
 
     private var downloadDate = "2018/10/03"

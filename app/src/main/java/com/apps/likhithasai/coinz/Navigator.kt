@@ -13,9 +13,14 @@ import kotlinx.android.synthetic.main.app_bar_navigator.*
 import android.support.v4.content.ContextCompat.startActivity
 import android.content.Intent
 import android.widget.Button
+import com.google.firebase.auth.FirebaseAuth
+
 
 
 class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    private var mAuth: FirebaseAuth? = null
+    var prefs: SharedPrefs? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
