@@ -27,8 +27,7 @@ import android.app.Activity
 import android.content.Context
 import android.support.v4.content.ContextCompat.startActivity
 import android.content.Intent
-
-
+import com.google.firebase.firestore.FieldValue
 
 
 class CustomAdaptor(val wallet: MutableSet<String>?, val user: String, val shil_rate:String, val peny_rate:String, val dolr_rate:String, val quid_rate:String): RecyclerView.Adapter<CustomViewHolder>() {
@@ -56,13 +55,8 @@ class CustomAdaptor(val wallet: MutableSet<String>?, val user: String, val shil_
         holder.view.value.text = value
 
         holder.view.deposit.setOnClickListener {
-            //Log.d(tag,"Currency: ${holder.view.currency.text} Value: ${holder.view.value.text} ")
 
-//            val intent1 = Intent(context, WalletActivity::class.java)
-//            intent1.putExtra("currency", holder.view.currency.text!!)
-//            intent1.putExtra("text", holder.view.value.text!!)
-//            context.startActivity(intent1)
-//            (context as Activity).finish()
+            val valuetodelete = currency + value
 
             val ref = FirebaseFirestore.getInstance().collection("UsersWallet").document(user!!)
             val ref2 = FirebaseFirestore.getInstance().collection("UsersWallet")
@@ -70,6 +64,11 @@ class CustomAdaptor(val wallet: MutableSet<String>?, val user: String, val shil_
 
             var goldcoins:String = "0"
             var newGold:BigDecimal = BigDecimal("0")
+
+            val updates = HashMap<String, Any>()
+            updates["capital"] = FieldValue.delete()
+
+            ref.update(updates).addOnCompleteListener { }
 
             readData(object : GoldCallBack{
                 override fun onCallBack(gold: String) {
@@ -108,34 +107,23 @@ class CustomAdaptor(val wallet: MutableSet<String>?, val user: String, val shil_
                     }
 
                     ref.update("gold", newGold.toString())
+
+
+                    val userdata = User("m.likhi", newGold.toString())
+
+                    dbRef.child("goldcoins").child(user)
+                            .setValue(userdata)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    Log.d(tag, "Gold coins added")
+                                } else {
+                                    Log.d(tag, "Gold coins addition failed")
+                                }
+                            }
                 }
             })
 
-
-
-
-
-//            ref.get().addOnSuccessListener {
-//                gold = it.get("gold") as String
-//                Log.d(tag, "Old Gold" + gold)
-//            }
-
-
             Log.d(tag, "Old Gold: " + goldcoins)
-
-            val userdata = User("m.likhi", newGold.toString())
-
-            dbRef.child("goldcoins").child(user)
-                    .setValue(userdata)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Log.d(tag, "Gold coins added")
-                        } else {
-                            Log.d(tag, "Gold coins addition failed")
-                        }
-                    }
-
-    //        ref.update("gold", newGold.toString())
 
             notifyItemRemoved(position)
             notifyItemRangeChanged(position, wallet!!.size)

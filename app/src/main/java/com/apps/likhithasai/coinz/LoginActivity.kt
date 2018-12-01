@@ -75,7 +75,9 @@ class LoginActivity: AppCompatActivity() {
                             val profileUpdates = UserProfileChangeRequest.Builder()
                                     .setDisplayName(mName).build()
                             user?.updateProfile(profileUpdates)
+
                             prefs = SharedPrefs(applicationContext)
+                            prefs!!.currentUserName = mName
                             prefs!!.currentUser = user!!.uid
                             Log.d(TAG, "signInWithEmail:success")
                             updateUI()

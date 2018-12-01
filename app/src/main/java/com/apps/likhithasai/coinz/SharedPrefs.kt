@@ -21,6 +21,10 @@ class SharedPrefs(applicationContext: Context?) {
         get() = pref!!.getString("current user", "")
         set(value) = pref!!.edit()!!.putString("current user", value).apply()
 
+    var currentUserName : String
+        get() = pref!!.getString("current username", "")
+        set(value) = pref!!.edit()!!.putString("current username", value).apply()
+
     var coinsCollected: MutableSet<String>?
         get() = pref!!.getStringSet("$currentUser coins", emptySet())
         set(set) = editor!!.putStringSet("$currentUser coins", set).apply()
