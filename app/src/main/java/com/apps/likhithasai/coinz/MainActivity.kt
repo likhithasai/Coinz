@@ -23,29 +23,16 @@ import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
-import com.mapbox.geojson.*;
-import com.mapbox.mapboxsdk.annotations.Icon
+import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.annotations.IconFactory
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject
-import android.graphics.drawable.Drawable
-import android.support.v4.content.ContextCompat
-import com.mapbox.mapboxsdk.style.light.Position
-import java.io.IOException
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.gson.Gson
+import com.google.firebase.firestore.SetOptions
 import com.mapbox.mapboxsdk.annotations.Marker
 import kotlinx.android.synthetic.main.activity_main.*
-import java.math.BigDecimal
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -68,8 +55,8 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 
     private var currentUser = ""
 
-    private var coinsCollected:MutableSet<String> ?= null
-    private var wallet:MutableSet<String> ?= null
+    private var coinsCollected: MutableSet<String>? = null
+    private var wallet: MutableSet<String>? = null
 
     private val CONNECTION_TIMEOUT_MILLISECONDS = 15000
     private val CONNECTION_READTIMEOUT_MILLISECONDS = 10000
@@ -83,10 +70,10 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 
     private var downloadDate = "2018/10/03"
 
-    var coinsConstraint:Int = 0
+    var coinsConstraint: Int = 0
 
 
-    fun pickColorString(hex: String):String {
+    fun pickColorString(hex: String): String {
         when (hex) {
             PURPLE -> return "p"
             RED -> return "r"
@@ -96,8 +83,8 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         return ""
     }
 
-    object DownloadCompleteRunner: DownloadCompleteListener{
-        var result : String?= null
+    object DownloadCompleteRunner : DownloadCompleteListener {
+        var result: String? = null
         override fun downloadComplete(result: String) {
             this.result = result;
         }
@@ -122,7 +109,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         mapView = findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
         Log.d(tag, "[onMapReady] DOES LOGGING WORK")
-        mapView?.getMapAsync (this)
+        mapView?.getMapAsync(this)
     }
 
     override fun onMapReady(mapboxMap: MapboxMap?) {
@@ -137,19 +124,18 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
             var date: Date = Calendar.getInstance().getTime();
 
             // Display a date in day, month, year format
-            val formatter:DateFormat  = SimpleDateFormat("yyyy/MM/dd");
+            val formatter: DateFormat = SimpleDateFormat("yyyy/MM/dd");
             downloadDate = formatter.format(date);
-            Log.d(tag,"Today : " + downloadDate);
+            Log.d(tag, "Today : " + downloadDate);
 
-            var mapfeat:String = ""
+            var mapfeat: String = ""
 
-            if (!downloadDate.equals(prefs!!.lastDownloadDate)){
+            if (!downloadDate.equals(prefs!!.lastDownloadDate)) {
                 val url = "http://homepages.inf.ed.ac.uk/stg/coinz/${downloadDate}/coinzmap.geojson"
                 mapfeat = DownloadFeaturesTask(DownloadCompleteRunner).execute(url).get()
                 prefs!!.mapfeat = mapfeat
                 prefs!!.lastDownloadDate = downloadDate
-            }
-            else {
+            } else {
 //                val url = "http://homepages.inf.ed.ac.uk/stg/coinz/${downloadDate}/coinzmap.geojson"
 //                mapfeat = DownloadFeaturesTask(DownloadCompleteRunner).execute(url).get()
 //                prefs!!.mapfeat = mapfeat
@@ -157,8 +143,8 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
             }
             //val url = "http://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson"
 
-            Log.d(tag,"JSON FILE:" + mapfeat)
-           // To get the rates
+            Log.d(tag, "JSON FILE:" + mapfeat)
+            // To get the rates
             val jsonObj = JSONObject(mapfeat)
             val rates = jsonObj.getJSONObject("rates")
 
@@ -175,7 +161,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
                 if (f.geometry() is Point) {
                     val id = f.getStringProperty("id")
 
-                    if(!coinsCollected?.contains(id)!!){
+                    if (!coinsCollected?.contains(id)!!) {
 
                         Log.d(tag, "Inside the for loop for adding markers")
                         val point = f.geometry() as Point
@@ -201,8 +187,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
                         //Adding marker to the list
                         val coin = Coin(id = id, currency = currency, value = value)
                         markers[m] = coin
-                    }
-                    else{
+                    } else {
 
                         Log.d(tag, "Coin collected ${id} or something wrong lol")
                     }
@@ -214,7 +199,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 
 
     fun enableLocation() {
-        if (PermissionsManager.areLocationPermissionsGranted(this)){
+        if (PermissionsManager.areLocationPermissionsGranted(this)) {
             initializeLocationEngine()
             initializeLocationLayer()
         } else {
@@ -224,7 +209,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     }
 
     @SuppressWarnings("MissingPermission")
-    private fun initializeLocationEngine(){
+    private fun initializeLocationEngine() {
         locationEngine = LocationEngineProvider(this).obtainBestLocationEngineAvailable()
         locationEngine?.priority = LocationEnginePriority.HIGH_ACCURACY
         locationEngine?.addLocationEngineListener(this)
@@ -245,9 +230,9 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         locationLayerPlugin?.renderMode = RenderMode.NORMAL
     }
 
-    private fun setCameraPosition(location: Location){
+    private fun setCameraPosition(location: Location) {
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                LatLng(location.latitude, location.latitude),15.0))
+                LatLng(location.latitude, location.latitude), 15.0))
     }
 
     override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
@@ -255,7 +240,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     }
 
     override fun onPermissionResult(granted: Boolean) {
-        if (granted){
+        if (granted) {
             enableLocation()
         }
     }
@@ -274,21 +259,23 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         var loccoinCollected: Marker? = null
         //var coinCollected:Coin ?= null
 
-        for ((marker,coin) in markers!!.iterator()) {
-            Location.distanceBetween(location!!.latitude,location.longitude,
-                    marker.position.latitude,marker.position.longitude,distances)
+        for ((marker, coin) in markers!!.iterator()) {
+            Location.distanceBetween(location!!.latitude, location.longitude,
+                    marker.position.latitude, marker.position.longitude, distances)
             if (distances[0] <= location!!.accuracy && distances[0] <= 25) {
                 Log.d(tag, "Coin collected!")
                 marker.remove()
                 loccoinCollected = marker
                 //coinCollected = coin
-                val coinCollected = downloadDate + coin.currency + coin.value
+                val coinCollected = coin.currency + coin.value
                 Log.d(tag, "Coin collected: $coinCollected")
                 //Log.d(tag, "Coin ID: ${coinCollected.id}")
                 coinsCollected!!.add(coin.id)
                 wallet!!.add(coinCollected)
+
                 walletdb!!.put(coin.id, coinCollected)
-                if (coinsConstraint < 25){
+
+                if (coinsConstraint < 25) {
                     this.progressBar1.progress = coinsConstraint++
                 }
 
@@ -309,7 +296,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     @SuppressWarnings("MissingPermission")
     override fun onStart() {
         super.onStart()
-        if(PermissionsManager.areLocationPermissionsGranted(this)){
+        if (PermissionsManager.areLocationPermissionsGranted(this)) {
             locationEngine?.requestLocationUpdates()
             locationLayerPlugin?.onStart()
         }
@@ -342,12 +329,18 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         prefs?.coinsCollected = coinsCollected
         prefs?.wallet = wallet
 
-        val ref = FirebaseFirestore.getInstance().collection("users")
+        val ref = FirebaseFirestore.getInstance().collection("UsersWallet")
         val documentId = prefs!!.currentUser
 
-        ref.document(documentId).set(walletdb).addOnCompleteListener {
-            Log.d(tag, "Things added")
-        }
+        ref.document(documentId).set(walletdb, SetOptions.merge())
+                .addOnSuccessListener {
+                    Log.d(tag, "Things added")
+                }
+                .addOnFailureListener {
+                    Log.d(tag, "Failed")
+                    Log.d(tag, it.message)
+                }
+
     }
 
     override fun onDestroy() {

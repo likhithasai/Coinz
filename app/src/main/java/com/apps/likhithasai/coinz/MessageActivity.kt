@@ -74,7 +74,7 @@ class MessageActivity : AppCompatActivity() {
                 e != null -> Log.e("ERROR", e.message)
                 documentSnapshot != null && documentSnapshot.exists() -> {
                     with(documentSnapshot) {
-                        txtDisp.text = "${data[NAME_FIELD]}:${data[TEXT_FIELD]}"
+                        txtDisp.text = "${data!![NAME_FIELD]}:${data!![TEXT_FIELD]}"
                     }
                 }
             }

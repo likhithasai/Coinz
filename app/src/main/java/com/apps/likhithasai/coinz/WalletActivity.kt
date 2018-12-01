@@ -26,27 +26,41 @@ class WalletActivity : AppCompatActivity() {
         setContentView(R.layout.activity_wallet)
 
         prefs = SharedPrefs(applicationContext)
+        val shil_rate = prefs!!.shil_rate
+        val dolr_rate = prefs!!.dolr_rate
+        val peny_rate = prefs!!.peny_rate
+        val quid_rate = prefs!!.quid_rate
+        val user = prefs!!.currentUser
 
         readData(object : MyCallBack {
             override fun onCallBack(wallet: Set<String>) {
                 recyclerView_main.layoutManager = LinearLayoutManager(this@WalletActivity)
-                recyclerView_main.adapter = CustomAdaptor(wallet.toMutableSet())
+                recyclerView_main.adapter = CustomAdaptor(wallet.toMutableSet(),user, shil_rate, peny_rate, dolr_rate, quid_rate)
             }
         })
 
-   }
+    }
 
     fun readData(myCallback: MyCallBack) {
-        var documentReference = FirebaseFirestore.getInstance().collection("users").document(prefs!!.currentUser)
+        var documentReference = FirebaseFirestore.getInstance().collection("UsersWallet").document(prefs!!.currentUser)
         documentReference.get().addOnCompleteListener(object: OnCompleteListener<DocumentSnapshot>{
             override fun onComplete(task: Task<DocumentSnapshot>) {
+                Log.d(tag, "inOnComplete")
                 if (task.isSuccessful){
                     val document = task.result
-                    val walletdb = document.data
+                    val walletdb = document!!.data
                     var wallet = mutableSetOf<String>()
-                    for ((key, value) in walletdb) {
-                        Log.d(tag, "Value: $value")
-                        wallet?.add(value as String)
+                    var gold:String = ""
+                    if (walletdb != null) {
+                        for ((key, value) in walletdb) {
+                            if (!key.equals("gold")){
+                                Log.d(tag, "Value: $value")
+                                wallet.add(value as String)
+                            }
+                            else{
+                                gold = value as String
+                            }
+                        }
                     }
                     myCallback.onCallBack(wallet)
                 }

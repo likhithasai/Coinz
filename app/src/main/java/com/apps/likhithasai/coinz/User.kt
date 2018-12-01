@@ -1,3 +1,3 @@
 package com.apps.likhithasai.coinz
 
-data class User(val name:String, val score: String)
+data class User(val name:String = "", val score: String = "")
