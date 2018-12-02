@@ -30,7 +30,7 @@ import android.content.Intent
 import com.google.firebase.firestore.FieldValue
 
 
-class CustomAdaptor(val wallet: MutableSet<String>?, val user: String, val shil_rate:String, val peny_rate:String, val dolr_rate:String, val quid_rate:String): RecyclerView.Adapter<CustomViewHolder>() {
+class CustomAdaptor(val wallet: MutableSet<String>?,val walletdb: MutableMap<String, Any>, val user: String, val shil_rate:String, val peny_rate:String, val dolr_rate:String, val quid_rate:String): RecyclerView.Adapter<CustomViewHolder>() {
     private val tag="CustomAdaptor"
     var dbRef = FirebaseDatabase.getInstance().reference
 
@@ -50,25 +50,34 @@ class CustomAdaptor(val wallet: MutableSet<String>?, val user: String, val shil_
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
         val currency = wallet?.elementAt(position)?.substring(0,4)
         val value = wallet?.elementAt(position)?.substring(4)
+
         Log.d(tag, "Currency: $currency Value: $value")
         holder.view.currency.text = currency
         holder.view.value.text = value
 
         holder.view.deposit.setOnClickListener {
 
-            val valuetodelete = currency + value
+            val valueToDelete = currency + value
 
             val ref = FirebaseFirestore.getInstance().collection("UsersWallet").document(user!!)
-            val ref2 = FirebaseFirestore.getInstance().collection("UsersWallet")
+            //val ref2 = FirebaseFirestore.getInstance().collection("UsersWallet")
 
 
             var goldcoins:String = "0"
             var newGold:BigDecimal = BigDecimal("0")
+            //var keytoDelete:String = "0"
 
             val updates = HashMap<String, Any>()
-            updates["capital"] = FieldValue.delete()
 
-            ref.update(updates).addOnCompleteListener { }
+            for ((key, value) in walletdb) {
+                if (value.equals(valueToDelete)){
+                    updates.put(key, FieldValue.delete())
+                } else{
+                    Log.d(tag,"Value to delete: $value and it's key: $key" )
+                }
+            }
+
+            //updates["capital"] = FieldValue.delete()
 
             readData(object : GoldCallBack{
                 override fun onCallBack(gold: String) {
@@ -125,8 +134,15 @@ class CustomAdaptor(val wallet: MutableSet<String>?, val user: String, val shil_
 
             Log.d(tag, "Old Gold: " + goldcoins)
 
-            notifyItemRemoved(position)
-            notifyItemRangeChanged(position, wallet!!.size)
+
+            ref.update(updates).addOnCompleteListener {
+                if (it.isSuccessful){
+                    Log.d(tag, "Database updated after the deposit")
+                }
+            }
+
+            wallet!!.remove(valueToDelete)
+            notifyDataSetChanged()
         }
 
 
@@ -142,21 +158,6 @@ class CustomAdaptor(val wallet: MutableSet<String>?, val user: String, val shil_
             Log.d(tag, "Old Gold" + gold)
             myCallBack.onCallBack(gold as String)
         }
-        //The realtime datbase stuff.
-//        dbRef.child("goldcoins").child(user).addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                val user:User = dataSnapshot.getValue(User::class.java)!!
-//                if (user!!.name.equals("m.likhi")) {
-//                    gold = user.score
-//                }
-//
-//            }
-//
-//            override fun onCancelled(databaseError: DatabaseError) {
-//                Log.d(tag, "Error trying to get user for update " +
-//                        "" + databaseError)
-//            }
-//        })
 
     }
 }

@@ -3,70 +3,57 @@ package com.apps.likhithasai.coinz
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_wallet.*
-import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.database.Query
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.QuerySnapshot
+
 
 
 class WalletActivity : AppCompatActivity() {
 
     private val tag = "WalletActivity"
 
-    var prefs:SharedPrefs ?= null
-
+    private var prefs:SharedPrefs ?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_wallet)
 
         prefs = SharedPrefs(applicationContext)
-        val shil_rate = prefs!!.shil_rate
-        val dolr_rate = prefs!!.dolr_rate
-        val peny_rate = prefs!!.peny_rate
-        val quid_rate = prefs!!.quid_rate
+        val shilRate = prefs!!.shil_rate
+        val dolrRate = prefs!!.dolr_rate
+        val penyRate = prefs!!.peny_rate
+        val quidRate = prefs!!.quid_rate
         val user = prefs!!.currentUser
 
         readData(object : MyCallBack {
-            override fun onCallBack(wallet: Set<String>) {
+            override fun onCallBack(valuesWallet: Set<String>, coins: MutableMap<String, Any>) {
                 recyclerView_main.layoutManager = LinearLayoutManager(this@WalletActivity)
-                recyclerView_main.adapter = CustomAdaptor(wallet.toMutableSet(),user, shil_rate, peny_rate, dolr_rate, quid_rate)
+                recyclerView_main.adapter = CustomAdaptor(valuesWallet.toMutableSet(), coins ,user, shilRate, penyRate, dolrRate, quidRate)
             }
         })
 
     }
 
-    fun readData(myCallback: MyCallBack) {
-        var documentReference = FirebaseFirestore.getInstance().collection("UsersWallet").document(prefs!!.currentUser)
-        documentReference.get().addOnCompleteListener(object: OnCompleteListener<DocumentSnapshot>{
-            override fun onComplete(task: Task<DocumentSnapshot>) {
-                Log.d(tag, "inOnComplete")
-                if (task.isSuccessful){
-                    val document = task.result
-                    val walletdb = document!!.data
-                    var wallet = mutableSetOf<String>()
-                    var gold:String = ""
-                    if (walletdb != null) {
-                        for ((key, value) in walletdb) {
-                            if (!key.equals("gold")){
-                                Log.d(tag, "Value: $value")
-                                wallet.add(value as String)
-                            }
-                            else{
-                                gold = value as String
-                            }
-                        }
+    private fun readData(myCallback: MyCallBack) {
+        val documentReference = FirebaseFirestore.getInstance().collection("UsersWallet").document(prefs!!.currentUser)
+        documentReference.get().addOnCompleteListener { task ->
+            Log.d(tag, "inOnComplete")
+            if (task.isSuccessful){
+                val document = task.result
+                val walletdb = document!!.data
+                val wallet = mutableSetOf<String>()
+                for ((key, value) in walletdb) {
+                    if (key != "gold"){
+                        Log.d(tag, "Value: $value")
+                        wallet.add(value as String)
                     }
-                    myCallback.onCallBack(wallet)
-                }
-            }
 
-        })
+                }
+
+                myCallback.onCallBack(wallet, walletdb.toMutableMap())
+            }
+        }
     }
 
 

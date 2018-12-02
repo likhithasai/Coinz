@@ -1,13 +1,10 @@
 package com.apps.likhithasai.coinz
 
-import android.content.SharedPreferences
-import android.graphics.Bitmap
 import android.location.Location
 import android.support.v7.app.AppCompatActivity
 import android.os.*
 import android.util.Log
 import android.widget.Toast
-import java.net.HttpURLConnection
 import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineListener
 import com.mapbox.android.core.location.LocationEnginePriority
@@ -58,8 +55,8 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     private var coinsCollected: MutableSet<String>? = null
     private var wallet: MutableSet<String>? = null
 
-    private val CONNECTION_TIMEOUT_MILLISECONDS = 15000
-    private val CONNECTION_READTIMEOUT_MILLISECONDS = 10000
+//    private val CONNECTION_TIMEOUT_MILLISECONDS = 15000
+//    private val CONNECTION_READTIMEOUT_MILLISECONDS = 10000
 
     private val PURPLE = "#0000ff"
     private val RED = "#ff0000"
@@ -86,7 +83,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     object DownloadCompleteRunner : DownloadCompleteListener {
         var result: String? = null
         override fun downloadComplete(result: String) {
-            this.result = result;
+            this.result = result
         }
     }
 
@@ -95,8 +92,8 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        prefs = SharedPrefs(applicationContext);
-        currentUser = prefs!!.currentUser;
+        prefs = SharedPrefs(applicationContext)
+        currentUser = prefs!!.currentUser
         Log.d(tag, "Current user: $currentUser")
 
         this.progressBar1.max = 25
@@ -107,9 +104,9 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         Mapbox.getInstance(applicationContext, getString(R.string.access_token))
 
         mapView = findViewById(R.id.mapView)
-        mapView?.onCreate(savedInstanceState)
+        mapView.onCreate(savedInstanceState)
         Log.d(tag, "[onMapReady] DOES LOGGING WORK")
-        mapView?.getMapAsync(this)
+        mapView.getMapAsync(this)
     }
 
     override fun onMapReady(mapboxMap: MapboxMap?) {
@@ -118,15 +115,15 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         } else {
             map = mapboxMap
             Log.d(tag, "[onMapReady] inside onMapReady")
-            map?.uiSettings?.isCompassEnabled = true
-            map?.uiSettings?.isZoomControlsEnabled = true
+            map?.uiSettings.isCompassEnabled = true
+            map?.uiSettings.isZoomControlsEnabled = true
 
-            var date: Date = Calendar.getInstance().getTime();
+            var date: Date = Calendar.getInstance().getTime()
 
             // Display a date in day, month, year format
             val formatter: DateFormat = SimpleDateFormat("yyyy/MM/dd");
             downloadDate = formatter.format(date);
-            Log.d(tag, "Today : " + downloadDate);
+            Log.d(tag, "Today : " + downloadDate)
 
             var mapfeat: String = ""
 
@@ -154,8 +151,8 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
             prefs!!.peny_rate = rates.getString("PENY")
 
 
-            var featureCollection: FeatureCollection = FeatureCollection.fromJson(mapfeat)
-            var features: List<Feature>? = featureCollection.features()
+            val featureCollection: FeatureCollection = FeatureCollection.fromJson(mapfeat)
+            val features: List<Feature>? = featureCollection.features()
 
             for (f in features!!.iterator()) {
                 if (f.geometry() is Point) {
@@ -166,7 +163,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
                         Log.d(tag, "Inside the for loop for adding markers")
                         val point = f.geometry() as Point
 
-                        var colorStr: String = ""
+                        var colorStr: String
                         val markerColour = f.getStringProperty("marker-color")
                         colorStr = pickColorString(markerColour)
 
@@ -259,10 +256,10 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         var loccoinCollected: Marker? = null
         //var coinCollected:Coin ?= null
 
-        for ((marker, coin) in markers!!.iterator()) {
+        for ((marker, coin) in markers.iterator()) {
             Location.distanceBetween(location!!.latitude, location.longitude,
                     marker.position.latitude, marker.position.longitude, distances)
-            if (distances[0] <= location!!.accuracy && distances[0] <= 25) {
+            if (distances[0] <= location.accuracy && distances[0] <= 25) {
                 Log.d(tag, "Coin collected!")
                 marker.remove()
                 loccoinCollected = marker
@@ -283,8 +280,8 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         }
         markers.remove(loccoinCollected)
         val size = markers.size
-        Log.d(tag, "Coins now: ${size}")
-        Toast.makeText(this, "There are now ${size} markers", Toast.LENGTH_SHORT).show()
+        Log.d(tag, "Coins now: $size")
+        Toast.makeText(this, "There are now $size markers", Toast.LENGTH_SHORT).show()
     }
 
 
