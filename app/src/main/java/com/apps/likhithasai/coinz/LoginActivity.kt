@@ -2,21 +2,18 @@ package com.apps.likhithasai.coinz
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.*;
-import android.content.Intent;
-import android.view.View;
+import android.widget.*
+import android.content.Intent
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import android.text.TextUtils
 import android.util.Log
 import com.google.firebase.auth.UserProfileChangeRequest
-import android.support.annotation.NonNull
 import android.view.Window
 import android.view.WindowManager
 
 
 class LoginActivity: AppCompatActivity() {
-    private val TAG = "LoginActivity"
+    private val tag = "LoginActivity"
     //global variables
     //private var email: String? = null
     private var password: String? = null
@@ -35,10 +32,10 @@ class LoginActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         //Remove title bar
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         //Remove notification bar
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        this.window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_login)
         initialise()
     }
@@ -63,15 +60,15 @@ class LoginActivity: AppCompatActivity() {
         //var mName:String  = email.substringBefore("@")
         val split = email.split("@")
         val mName = split[0]
-        Log.d(TAG, mName)
+        Log.d(tag, mName)
         password = etPassword?.text.toString()
         if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)) {
-            Log.d(TAG, "Logging in user.")
-            mAuth!!.signInWithEmailAndPassword(email!!, password!!)
+            Log.d(tag, "Logging in user.")
+            mAuth!!.signInWithEmailAndPassword(email, password!!)
                     .addOnCompleteListener(this) { task ->
                         if (task.isSuccessful) {
                             // Sign in success, update UI with signed-in user's information
-                            val user = mAuth?.getCurrentUser()
+                            val user = mAuth?.currentUser
                             val profileUpdates = UserProfileChangeRequest.Builder()
                                     .setDisplayName(mName).build()
                             user?.updateProfile(profileUpdates)
@@ -79,11 +76,11 @@ class LoginActivity: AppCompatActivity() {
                             prefs = SharedPrefs(applicationContext)
                             prefs!!.currentUserName = mName
                             prefs!!.currentUser = user!!.uid
-                            Log.d(TAG, "signInWithEmail:success")
+                            Log.d(tag, "signInWithEmail:success")
                             updateUI()
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.e(TAG, "signInWithEmail:failure", task.exception)
+                            Log.e(tag, "signInWithEmail:failure", task.exception)
                             Toast.makeText(this@LoginActivity, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show()
                         }

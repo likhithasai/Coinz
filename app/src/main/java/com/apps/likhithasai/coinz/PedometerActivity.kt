@@ -1,5 +1,6 @@
 package com.apps.likhithasai.coinz
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -7,14 +8,13 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_pedometer.*
 
 class PedometerActivity : AppCompatActivity(), SensorEventListener {
 
-    var running = false
-    var sensorManager:SensorManager? = null
+    private var running = false
+    private var sensorManager:SensorManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +25,7 @@ class PedometerActivity : AppCompatActivity(), SensorEventListener {
     override fun onResume() {
         super.onResume()
         running = true
-        var stepsSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+        val stepsSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
 
         if (stepsSensor == null) {
             Toast.makeText(this, "No Step Counter Sensor !", Toast.LENGTH_SHORT).show()
@@ -43,9 +43,10 @@ class PedometerActivity : AppCompatActivity(), SensorEventListener {
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onSensorChanged(event: SensorEvent?) {
         if (running) {
-            stepsVal.setText(""+ event?.values!![0])
+            stepsVal.text = " ${event?.values!![0]}"
         }
     }
 

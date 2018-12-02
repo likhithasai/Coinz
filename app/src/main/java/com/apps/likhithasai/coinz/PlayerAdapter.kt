@@ -34,9 +34,7 @@ class PlayerAdapter : RecyclerView.Adapter<PlayerAdapter.PlayerViewHolder>() {
         fun bind(player: User, position: Int) {
             itemView.tv_position.text = (position + 1).toString()
             itemView.tv_name.text = player.name
-            itemView.tv_score.text = player.score.toString()
-           // itemView.tv_nationality.text = player.nationality
-           // itemView.iv_photo.loadImg(player.photo)
+            itemView.tv_score.text = player.score
         }
     }
 }

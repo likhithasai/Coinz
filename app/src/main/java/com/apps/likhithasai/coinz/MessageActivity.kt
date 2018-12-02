@@ -5,18 +5,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
-import com.google.firebase.FirebaseApp
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_message.*
-import java.math.RoundingMode
-import kotlin.math.roundToInt
 
 class MessageActivity : AppCompatActivity() {
 
-    private val tag = "MessageActivity"
+    //private val tag = "MessageActivity"
 
-    var prefs:SharedPrefs ?= null
+    private var prefs:SharedPrefs ?= null
 
 
     companion object {
@@ -48,7 +44,7 @@ class MessageActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 // either one will work as well
                 // val item = parent.getItemAtPosition(position) as String
-                val item = adapter.getItem(position)
+                //val item = adapter.getItem(position)
             }
         }
         realtimeUpdateListener()
@@ -62,9 +58,9 @@ class MessageActivity : AppCompatActivity() {
                 NAME_FIELD to userSend.text.toString(),
                 TEXT_FIELD to amtSend.text.toString())
         firestoreChat.set(newMessage)
-                .addOnSuccessListener( {
+                .addOnSuccessListener {
                     Toast.makeText(this@MessageActivity, "Message Sent", Toast.LENGTH_SHORT).show()
-                })
+                }
                 .addOnFailureListener { e -> Log.e("ERROR", e.message) }
     }
 
@@ -74,7 +70,7 @@ class MessageActivity : AppCompatActivity() {
                 e != null -> Log.e("ERROR", e.message)
                 documentSnapshot != null && documentSnapshot.exists() -> {
                     with(documentSnapshot) {
-                        txtDisp.text = "${data!![NAME_FIELD]}:${data!![TEXT_FIELD]}"
+                        txtDisp.text = "${data[NAME_FIELD]}:${data[TEXT_FIELD]}"
                     }
                 }
             }

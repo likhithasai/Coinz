@@ -2,16 +2,11 @@ package com.apps.likhithasai.coinz
 
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
-import com.mapbox.mapboxsdk.Mapbox.getApplicationContext
-import android.content.SharedPreferences
-import android.R.id.edit
-import java.math.BigDecimal
-import java.math.BigInteger
 
 class SharedPrefs(applicationContext: Context?) {
 
-    var pref = applicationContext?.getApplicationContext()?.getSharedPreferences("MyPref", MODE_PRIVATE)
-    var editor = pref?.edit()
+    private var pref = applicationContext?.getApplicationContext()?.getSharedPreferences("MyPref", MODE_PRIVATE)
+    private var editor = pref?.edit()
 
     var mapfeat: String
         get() = pref!!.getString("map", "")
@@ -33,25 +28,25 @@ class SharedPrefs(applicationContext: Context?) {
         get() = pref!!.getStringSet("$currentUser wallet", emptySet())
         set(set) = editor!!.putStringSet("$currentUser wallet", set).apply()
 
-    var goldcoins : String
-        get() = pref!!.getString("$currentUser total gold", "0")
-        set(value) = editor!!.putString("$currentUser total gold", value).apply()
+//    var goldcoins : String
+//        get() = pref!!.getString("$currentUser total gold", "0")
+//        set(value) = editor!!.putString("$currentUser total gold", value).apply()
 
-    var peny : String
-        get() = pref!!.getString("$currentUser total peny", "0")
-        set(value) = editor!!.putString("$currentUser total peny", value).apply()
-
-    var dolr : String
-        get() = pref!!.getString("$currentUser total dolr", "0")
-        set(value) = editor!!.putString("$currentUser total dolr", value).apply()
-
-    var quid : String
-        get() = pref!!.getString("$currentUser total quid", "0")
-        set(value) = editor!!.putString("$currentUser total quid", value).apply()
-
-    var shil : String
-        get() = pref!!.getString("$currentUser total shil", "0")
-        set(value) = editor!!.putString("$currentUser total shil", value).apply()
+//    var peny : String
+//        get() = pref!!.getString("$currentUser total peny", "0")
+//        set(value) = editor!!.putString("$currentUser total peny", value).apply()
+//
+//    var dolr : String
+//        get() = pref!!.getString("$currentUser total dolr", "0")
+//        set(value) = editor!!.putString("$currentUser total dolr", value).apply()
+//
+//    var quid : String
+//        get() = pref!!.getString("$currentUser total quid", "0")
+//        set(value) = editor!!.putString("$currentUser total quid", value).apply()
+//
+//    var shil : String
+//        get() = pref!!.getString("$currentUser total shil", "0")
+//        set(value) = editor!!.putString("$currentUser total shil", value).apply()
 
     //Rates for the day
 

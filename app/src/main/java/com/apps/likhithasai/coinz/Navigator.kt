@@ -1,7 +1,6 @@
 package com.apps.likhithasai.coinz
 
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
@@ -10,17 +9,16 @@ import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_navigator.*
 import kotlinx.android.synthetic.main.app_bar_navigator.*
-import android.support.v4.content.ContextCompat.startActivity
 import android.content.Intent
 import android.widget.Button
-import com.google.firebase.auth.FirebaseAuth
+
 
 
 
 class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private var mAuth: FirebaseAuth? = null
-    var prefs: SharedPrefs? = null
+//    private var mAuth: FirebaseAuth? = null
+//    var prefs: SharedPrefs? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +35,7 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         nav_view.setNavigationItemSelectedListener(this)
 
         playButton.setOnClickListener {
-                        // Handler code here.
+            // Handler code here.
             //Toast.makeText(this, "Button is clicked", Toast.LENGTH_LONG).show();
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
@@ -62,9 +60,9 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        when (item.itemId) {
-            R.id.action_settings -> return true
-            else -> return super.onOptionsItemSelected(item)
+        return when (item.itemId) {    //REMOVE RETURN IF THINGS DONT WORK
+            R.id.action_settings -> true
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
