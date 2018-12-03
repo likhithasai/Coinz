@@ -33,7 +33,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 
-class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback {
+class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback {
 
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
@@ -58,30 +58,30 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
 //    private val CONNECTION_TIMEOUT_MILLISECONDS = 15000
 //    private val CONNECTION_READTIMEOUT_MILLISECONDS = 10000
 
-    private val PURPLE = "#0000ff"
-    private val RED = "#ff0000"
-    private val YELLOW = "#ffdf00"
-    private val GREEN = "#008000"
+    private val purple = "#0000ff"
+    private val red = "#ff0000"
+    private val yellow = "#ffdf00"
+    private val green = "#008000"
 
-    var prefs: SharedPrefs? = null
+    private var prefs: SharedPrefs? = null
 
     private var downloadDate = "2018/10/03"
 
-    var coinsConstraint: Int = 0
+    private var coinsConstraint: Int = 0
 
 
-    fun pickColorString(hex: String): String {
+    private fun pickColorString(hex: String): String {
         when (hex) {
-            PURPLE -> return "p"
-            RED -> return "r"
-            GREEN -> return "g"
-            YELLOW -> return "y"
+            purple -> return "p"
+            red -> return "r"
+            green -> return "g"
+            yellow -> return "y"
         }
         return ""
     }
 
     object DownloadCompleteRunner : DownloadCompleteListener {
-        var result: String? = null
+        private var result: String? = null
         override fun downloadComplete(result: String) {
             this.result = result
         }
@@ -115,23 +115,24 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
         } else {
             map = mapboxMap
             Log.d(tag, "[onMapReady] inside onMapReady")
-            map?.uiSettings.isCompassEnabled = true
-            map?.uiSettings.isZoomControlsEnabled = true
+            map.uiSettings.isCompassEnabled = true
+            map.uiSettings.isZoomControlsEnabled = true
 
-            var date: Date = Calendar.getInstance().getTime()
+            val date: Date = Calendar.getInstance().time
 
             // Display a date in day, month, year format
-            val formatter: DateFormat = SimpleDateFormat("yyyy/MM/dd");
-            downloadDate = formatter.format(date);
-            Log.d(tag, "Today : " + downloadDate)
+            val formatter: DateFormat = SimpleDateFormat("yyyy/MM/dd")
+            downloadDate = formatter.format(date)
+            Log.d(tag, "Today : $downloadDate")
 
-            var mapfeat: String = ""
+            val mapfeat: String
 
-            if (!downloadDate.equals(prefs!!.lastDownloadDate)) {
-                val url = "http://homepages.inf.ed.ac.uk/stg/coinz/${downloadDate}/coinzmap.geojson"
+            if (downloadDate != prefs!!.lastDownloadDate) {
+                val url = "http://homepages.inf.ed.ac.uk/stg/coinz/$downloadDate/coinzmap.geojson"
                 mapfeat = DownloadFeaturesTask(DownloadCompleteRunner).execute(url).get()
                 prefs!!.mapfeat = mapfeat
                 prefs!!.lastDownloadDate = downloadDate
+                prefs!!.coinConstraint = 0
             } else {
 //                val url = "http://homepages.inf.ed.ac.uk/stg/coinz/${downloadDate}/coinzmap.geojson"
 //                mapfeat = DownloadFeaturesTask(DownloadCompleteRunner).execute(url).get()
@@ -140,7 +141,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
             }
             //val url = "http://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson"
 
-            Log.d(tag, "JSON FILE:" + mapfeat)
+            Log.d(tag, "JSON FILE: $mapfeat")
             // To get the rates
             val jsonObj = JSONObject(mapfeat)
             val rates = jsonObj.getJSONObject("rates")
@@ -186,7 +187,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
                         markers[m] = coin
                     } else {
 
-                        Log.d(tag, "Coin collected ${id} or something wrong lol")
+                        Log.d(tag, "Coin collected $id or something wrong lol")
                     }
                 }
             }
@@ -195,7 +196,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
     }
 
 
-    fun enableLocation() {
+    private fun enableLocation() {
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
             initializeLocationEngine()
             initializeLocationLayer()
@@ -270,7 +271,7 @@ class MainActivity() : AppCompatActivity(), PermissionsListener, LocationEngineL
                 coinsCollected!!.add(coin.id)
                 wallet!!.add(coinCollected)
 
-                walletdb!!.put(coin.id, coinCollected)
+                walletdb[coin.id] = coinCollected
 
                 if (coinsConstraint < 25) {
                     this.progressBar1.progress = coinsConstraint++

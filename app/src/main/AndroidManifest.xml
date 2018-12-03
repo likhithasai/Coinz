@@ -35,11 +35,14 @@
             android:label="@string/title_activity_navigator"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".WalletActivity"
-                android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name=".MessageActivity"></activity>
-        <activity android:name=".PedometerActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".WalletActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".MessageActivity" />
+        <activity
+            android:name=".PedometerActivity"/>
+        <activity android:name=".BankActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>
