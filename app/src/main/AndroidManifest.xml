@@ -39,10 +39,11 @@
             android:name=".WalletActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".MessageActivity" />
+        <activity android:name=".PedometerActivity" />
         <activity
-            android:name=".PedometerActivity"/>
-        <activity android:name=".BankActivity"
+            android:name=".BankActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".CreatAccountActivity"></activity>
     </application>
 
 </manifest>

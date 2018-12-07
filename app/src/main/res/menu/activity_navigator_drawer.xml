@@ -29,6 +29,11 @@
             android:title="For the competitive ones"
             android:icon="@drawable/ic_leaderboard"
             />
+        <item
+            android:id="@+id/action_logout"
+            android:title="Log Out"
+            android:icon="@drawable/ic_logout"
+            />
     </group>
 
 </menu>

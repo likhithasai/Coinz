@@ -11,8 +11,7 @@ import kotlinx.android.synthetic.main.activity_navigator.*
 import kotlinx.android.synthetic.main.app_bar_navigator.*
 import android.content.Intent
 import android.widget.Button
-
-
+import com.google.firebase.auth.FirebaseAuth
 
 
 class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -92,6 +91,19 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 this.startActivity(intent)
 
             }
+            R.id.action_bank -> {
+                intent = Intent(this, BankActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                this.startActivity(intent)
+
+            }
+            R.id.action_logout -> {
+                val intent = Intent(this@Navigator, LoginActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivity(intent)
+                FirebaseAuth.getInstance().signOut()
+            }
+
         }
 
         drawer_layout.closeDrawer(GravityCompat.START)

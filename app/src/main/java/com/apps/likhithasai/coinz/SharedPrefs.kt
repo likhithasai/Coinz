@@ -28,9 +28,17 @@ class SharedPrefs(applicationContext: Context?) {
         get() = pref!!.getStringSet("$currentUser wallet", emptySet())
         set(set) = editor!!.putStringSet("$currentUser wallet", set).apply()
 
-//    var goldcoins : String
-//        get() = pref!!.getString("$currentUser total gold", "0")
-//        set(value) = editor!!.putString("$currentUser total gold", value).apply()
+    var goldcoins : String
+        get() = pref!!.getString("$currentUser total gold", "0")
+        set(value) = editor!!.putString("$currentUser total gold", value).apply()
+
+    var spareChange : String
+        get() = pref!!.getString("$currentUser total spare change", "0")
+        set(value) = editor!!.putString("$currentUser total spare change", value).apply()
+
+    var coinConstraint: Int
+        get() = pref!!.getInt("$currentUser coin constraint", 0)
+        set(value) = pref!!.edit()!!.putInt("$currentUser coin constraint", value).apply()
 
 //    var peny : String
 //        get() = pref!!.getString("$currentUser total peny", "0")

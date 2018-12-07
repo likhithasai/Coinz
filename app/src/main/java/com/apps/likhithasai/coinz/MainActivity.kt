@@ -134,9 +134,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 prefs!!.lastDownloadDate = downloadDate
                 prefs!!.coinConstraint = 0
             } else {
-//                val url = "http://homepages.inf.ed.ac.uk/stg/coinz/${downloadDate}/coinzmap.geojson"
-//                mapfeat = DownloadFeaturesTask(DownloadCompleteRunner).execute(url).get()
-//                prefs!!.mapfeat = mapfeat
                 mapfeat = prefs!!.mapfeat
             }
             //val url = "http://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson"
@@ -248,10 +245,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     }
 
     override fun onLocationChanged(location: Location?) {
-//       location?.let {
-//            originLocation = location
-//            setCameraPosition(location)
-//        }
+       location?.let {
+            //originLocation = location
+            setCameraPosition(location)
+        }
 //         Don't really need this...Do I
         val distances = FloatArray(10)
         var loccoinCollected: Marker? = null

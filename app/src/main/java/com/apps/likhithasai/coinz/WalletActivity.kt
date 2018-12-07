@@ -33,6 +33,8 @@ class WalletActivity : AppCompatActivity() {
         val quidRate = prefs!!.quid_rate
         val user = prefs!!.currentUser
 
+
+
         /**
          * The function call is to wait for the data to be read from the database before transferring it to
          * the adaptor as database processes are async processes.
@@ -40,7 +42,7 @@ class WalletActivity : AppCompatActivity() {
         readData(object : MyCallBack {
             override fun onCallBack(valuesWallet: Set<String>, coins: MutableMap<String, Any>) {
                 recyclerView_main.layoutManager = LinearLayoutManager(this@WalletActivity)
-                recyclerView_main.adapter = CustomAdaptor(valuesWallet.toMutableSet(), coins ,user, shilRate, penyRate, dolrRate, quidRate)
+                recyclerView_main.adapter = CustomAdaptor(valuesWallet.toMutableSet(), coins ,applicationContext, user, shilRate, penyRate, dolrRate, quidRate)
             }
         })
 
@@ -63,7 +65,7 @@ class WalletActivity : AppCompatActivity() {
                 val walletdb = document!!.data
                 val wallet = mutableSetOf<String>()
                 for ((key, value) in walletdb) {
-                    if (key != "gold"){
+                    if (key != "gold" && key != "sparechange"){
                         Log.d(tag, "Value: $value")
                         wallet.add(value as String)
                     }

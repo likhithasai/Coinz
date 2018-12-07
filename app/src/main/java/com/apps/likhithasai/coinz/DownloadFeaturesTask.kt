@@ -1,9 +1,9 @@
 package com.apps.likhithasai.coinz
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.AsyncTask
 import android.util.Log
-import android.widget.Toast
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
@@ -13,6 +13,7 @@ import java.net.URL
 
 
 class DownloadFeaturesTask(private val caller: DownloadCompleteListener) : AsyncTask<String, Void, String>() {
+        @SuppressLint("StaticFieldLeak")
         var context:Context ?= null
         private val tag = "DownloadFeaturesTask"
 
@@ -32,7 +33,7 @@ class DownloadFeaturesTask(private val caller: DownloadCompleteListener) : Async
 
             val bufferReader = BufferedReader(InputStreamReader(stream))
             var line: String
-            var result: String = ""
+            var result = ""
             try {
                 do {
                     line = bufferReader.readLine()

@@ -48,9 +48,9 @@ class LoginActivity: AppCompatActivity() {
         btnCreateAccount = findViewById(R.id.btn_register_account)
         mProgressBar = ProgressBar(this)
         mAuth = FirebaseAuth.getInstance()
-//        btnCreateAccount!!
-//                .setOnClickListener { startActivity(Intent(this@LoginActivity,
-//                        CreateAccountActivity::class.java)) }
+        btnCreateAccount!!
+                .setOnClickListener { startActivity(Intent(this@LoginActivity,
+                        CreatAccountActivity::class.java)) }
         btnLogin!!.setOnClickListener { loginUser() }
     }
 
@@ -95,6 +95,7 @@ class LoginActivity: AppCompatActivity() {
         val intent = Intent(this@LoginActivity, Navigator::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
+        finish()
     }
 
 }

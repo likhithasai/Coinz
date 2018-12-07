@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_bank.*
+import android.content.Intent
 
 class BankActivity : AppCompatActivity() {
 
@@ -26,6 +27,20 @@ class BankActivity : AppCompatActivity() {
 
         goldDisp.text = prefs!!.goldcoins
         spareChangeDisp.text = prefs!!.spareChange
+
+        shareBtn.setOnClickListener {
+            val s = "I possess ${prefs!!.goldcoins} gold coins. What's your net value on Coinz? ;)"
+            val shareIntent = Intent()
+            shareIntent.action = Intent.ACTION_SEND
+            shareIntent.type = "text/plain"
+            shareIntent.putExtra(Intent.EXTRA_TEXT, s)
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Download the best game in town, Coinz!")
+            startActivity(Intent.createChooser(shareIntent, "Share text via"))
+        }
+
+
+
+
 
     }
 
