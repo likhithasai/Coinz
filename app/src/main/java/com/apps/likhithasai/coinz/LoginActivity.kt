@@ -12,18 +12,24 @@ import android.view.Window
 import android.view.WindowManager
 
 
+/**
+ * Activity for user login
+ *
+ * The class authenticates a user using FireBase authentication. If the user details
+ * exist in the database, then the user is directed to the landing page of the app, else
+ * the user will be shown an invalid login message
+ *
+ */
 class LoginActivity: AppCompatActivity() {
+    //tag for log messages
     private val tag = "LoginActivity"
     //global variables
-    //private var email: String? = null
     private var password: String? = null
     //UI elements
-    private var tvForgotPassword: TextView? = null
     private var etEmail: EditText? = null
     private var etPassword: EditText? = null
     private var btnLogin: Button? = null
     private var btnCreateAccount: Button? = null
-    private var mProgressBar: ProgressBar? = null
     //Firebase references
     private var mAuth: FirebaseAuth? = null
     private var prefs: SharedPrefs? = null
@@ -41,24 +47,31 @@ class LoginActivity: AppCompatActivity() {
     }
 
     private fun initialise() {
-        tvForgotPassword = findViewById(R.id.tv_forgot_password)
         etEmail = findViewById(R.id.et_email)
         etPassword = findViewById(R.id.et_password)
         btnLogin = findViewById(R.id.btn_login)
         btnCreateAccount = findViewById(R.id.btn_register_account)
-        mProgressBar = ProgressBar(this)
+
+        //Get instance of FireBaseAuth
         mAuth = FirebaseAuth.getInstance()
+
+        //On click listener for the create account button
         btnCreateAccount!!
                 .setOnClickListener { startActivity(Intent(this@LoginActivity,
                         CreatAccountActivity::class.java)) }
+        //On click listener for the login button
         btnLogin!!.setOnClickListener { loginUser() }
     }
 
-
+    /**
+     * The loginUser function's purpose is to authenticate the user by checking if the credentials entered are
+     * in the authentication database on FireBase
+     */
     private fun loginUser() {
         val email = etEmail?.text.toString()
         //var mName:String  = email.substringBefore("@")
         val split = email.split("@")
+        //Create a username for each user
         val mName = split[0]
         Log.d(tag, mName)
         password = etPassword?.text.toString()
@@ -73,6 +86,7 @@ class LoginActivity: AppCompatActivity() {
                                     .setDisplayName(mName).build()
                             user?.updateProfile(profileUpdates)
 
+                            //Store user details in shared prefs
                             prefs = SharedPrefs(applicationContext)
                             prefs!!.currentUserName = mName
                             prefs!!.currentUser = user!!.uid
@@ -86,11 +100,17 @@ class LoginActivity: AppCompatActivity() {
                         }
                     }
         } else {
+            //Message telling user to enter all details if fields are empty
             Toast.makeText(this, "Enter all details", Toast.LENGTH_SHORT).show()
         }
 
     }
 
+
+    /**
+     * The updateUI function passes an intent to navigate to the Navigator activity which is the landing page.
+     * The details of the user are store in prefs so will be updated accordingly.
+     */
     private fun updateUI() {
         val intent = Intent(this@LoginActivity, Navigator::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
