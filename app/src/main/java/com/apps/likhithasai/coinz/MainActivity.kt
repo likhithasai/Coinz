@@ -245,19 +245,26 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     }
 
     override fun onLocationChanged(location: Location?) {
-       location?.let {
-            //originLocation = location
-            setCameraPosition(location)
-        }
+//       location?.let {
+//            //originLocation = location
+//            setCameraPosition(location)
+//        }
 //         Don't really need this...Do I
-        val distances = FloatArray(10)
         var loccoinCollected: Marker? = null
         //var coinCollected:Coin ?= null
 
         for ((marker, coin) in markers.iterator()) {
-            Location.distanceBetween(location!!.latitude, location.longitude,
-                    marker.position.latitude, marker.position.longitude, distances)
-            if (distances[0] <= location.accuracy && distances[0] <= 25) {
+            val loc1 = Location("")
+            loc1.latitude = location!!.latitude
+            loc1.longitude = location!!.longitude
+
+            val loc2 = Location("")
+            loc2.latitude = marker.position.latitude
+            loc2.longitude = marker.position.longitude
+
+            val distanceInMeters = loc1.distanceTo(loc2)
+
+            if (distanceInMeters <= 25) {
                 Log.d(tag, "Coin collected!")
                 marker.remove()
                 loccoinCollected = marker
