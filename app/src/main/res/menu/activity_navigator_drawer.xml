@@ -15,11 +15,6 @@
             android:icon="@drawable/ic_message"
             />
         <item
-            android:id="@+id/action_bank"
-            android:title="Your Swiss Account Balance"
-            android:icon="@drawable/ic_bank"
-            />
-        <item
             android:id="@+id/action_health"
             android:title="For the fitness freaks"
             android:icon="@drawable/ic_health"

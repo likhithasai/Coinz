@@ -46,6 +46,9 @@ class LoginActivity: AppCompatActivity() {
         initialise()
     }
 
+    /**
+     * The initialise function is used to initialise the UI elements to access the resources in other functions.
+     */
     private fun initialise() {
         etEmail = findViewById(R.id.et_email)
         etPassword = findViewById(R.id.et_password)

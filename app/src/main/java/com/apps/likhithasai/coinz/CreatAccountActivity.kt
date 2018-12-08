@@ -9,24 +9,23 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.UserProfileChangeRequest
 
+/**
+ * Activity for creating an account for a user
+ *
+ * The class creates a user in the FireBase database.
+ *
+ */
 class CreatAccountActivity : AppCompatActivity() {
 
     private val tag = "LoginActivity"
     //global variables
-    //private var email: String? = null
-    private var password: String? = null
     //UI elements
-    private var tvForgotPassword: TextView? = null
     private var etEmail: EditText? = null
     private var etPassword: EditText? = null
-    private var btnLogin: Button? = null
     private var btnCreateAccount: Button? = null
-    private var mProgressBar: ProgressBar? = null
-    //Firebase references
+    //Fire Base references
     private var mAuth: FirebaseAuth? = null
-    private var prefs: SharedPrefs? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,18 +39,26 @@ class CreatAccountActivity : AppCompatActivity() {
         initialise()
     }
 
+    /**
+     * The initialise function is used to initialise the UI elements to access the resources in other functions.
+     */
     private fun initialise() {
         etEmail = findViewById(R.id.et_email)
         etPassword = findViewById(R.id.et_password)
         btnCreateAccount = findViewById(R.id.btn_create_account)
         mAuth = FirebaseAuth.getInstance()
 
+        //On click listener for create account button
         btnCreateAccount!!.setOnClickListener { createUser() }
     }
 
-
-
+    /**
+     * The createUser function's purpose is to create a user using the credentials entered by the user.
+     * The details will be added to the FireBase database.
+     *
+     */
     private fun createUser() {
+        //Get email and password
         val email = etEmail?.text.toString()
         val password = etPassword?.text.toString()
 
@@ -69,36 +76,17 @@ class CreatAccountActivity : AppCompatActivity() {
                             Toast.makeText(baseContext, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show()
                         }
-
-                        // ...
                     }
-//            mAuth!!.signInWithEmailAndPassword(email, password!!)
-//                    .addOnCompleteListener(this) { task ->
-//                        if (task.isSuccessful) {
-//                            // Sign in success, update UI with signed-in user's information
-//                            val user = mAuth?.currentUser
-//                            val profileUpdates = UserProfileChangeRequest.Builder()
-//                                    .setDisplayName(mName).build()
-//                            user?.updateProfile(profileUpdates)
-//
-//                            prefs = SharedPrefs(applicationContext)
-//                            prefs!!.currentUserName = mName
-//                            prefs!!.currentUser = user!!.uid
-//                            Log.d(tag, "signInWithEmail:success")
-//                            updateUI()
-//                        } else {
-//                            // If sign in fails, display a message to the user.
-//                            Log.e(tag, "signInWithEmail:failure", task.exception)
-//                            Toast.makeText(this@LoginActivity, "Authentication failed.",
-//                                    Toast.LENGTH_SHORT).show()
-//                        }
-//                    }
         } else {
             Toast.makeText(this, "Enter all credentials", Toast.LENGTH_SHORT).show()
         }
 
     }
 
+    /**
+     * The updateUI function passes an intent to navigate to the Login activity which is the login page.
+     * The user can login with their new details.
+     */
     private fun updateUI() {
         val intent = Intent(this@CreatAccountActivity, LoginActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)

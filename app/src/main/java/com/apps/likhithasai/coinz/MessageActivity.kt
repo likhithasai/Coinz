@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.*
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.activity_bank.*
 import kotlinx.android.synthetic.main.activity_message.*
 import java.math.BigDecimal
 import java.math.RoundingMode
