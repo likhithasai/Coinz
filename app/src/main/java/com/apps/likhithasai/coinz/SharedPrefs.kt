@@ -40,6 +40,14 @@ class SharedPrefs(applicationContext: Context?) {
         get() = pref!!.getInt("$currentUser coin constraint", 0)
         set(value) = pref!!.edit()!!.putInt("$currentUser coin constraint", value).apply()
 
+    var depositLimit: Int
+        get() = pref!!.getInt("$currentUser deposit limit", 0)
+        set(value) = pref!!.edit()!!.putInt("$currentUser deposit limit", value).apply()
+
+    var distanceWalked: Float
+        get() = pref!!.getFloat("$currentUser distance walked", 0F)
+        set(value) = pref!!.edit()!!.putFloat("$currentUser distance walked", value).apply()
+
 //    var peny : String
 //        get() = pref!!.getString("$currentUser total peny", "0")
 //        set(value) = editor!!.putString("$currentUser total peny", value).apply()

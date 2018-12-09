@@ -15,11 +15,24 @@ class PedometerActivity : AppCompatActivity(), SensorEventListener {
 
     private var running = false
     private var sensorManager:SensorManager? = null
+    private var prefs:SharedPrefs ?= null
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pedometer)
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
+        //Declaring the shared prefs
+        prefs = SharedPrefs(applicationContext)
+        //Distance shown in km
+        val distKm:Float = prefs!!.distanceWalked/1000F
+        //Approx 60 cal burnt for 3km
+        val caloriesBurnt = ((distKm/3F) * 60F)
+
+        //Displaying the distance and the calories
+        distVal.text = "$distKm km walked"
+        calVal.text = "$caloriesBurnt kcal"
     }
 
     override fun onResume() {
@@ -46,6 +59,7 @@ class PedometerActivity : AppCompatActivity(), SensorEventListener {
     @SuppressLint("SetTextI18n")
     override fun onSensorChanged(event: SensorEvent?) {
         if (running) {
+            //Displaying the sensor event values
             stepsVal.text = " ${event?.values!![0]}"
         }
     }
