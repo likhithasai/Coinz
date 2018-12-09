@@ -3,8 +3,8 @@ package com.apps.likhithasai.coinz
 import android.location.Location
 import android.support.v7.app.AppCompatActivity
 import android.os.*
+import android.support.design.widget.Snackbar
 import android.util.Log
-import android.widget.Toast
 import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineListener
 import com.mapbox.android.core.location.LocationEnginePriority
@@ -38,9 +38,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
     private lateinit var permissionManager: PermissionsManager
-    private lateinit var originLocation: Location
+    private var originLocation: Location ?= null //Chnage this if it crashes
     private val tag = "MainActivity"
-    //Probably should be a hashmap with coin id ? but shall see
     //private val markers: kotlin.collections.MutableList<Marker> = java.util.ArrayList()
 
     private var markers = HashMap<Marker, Coin>()
@@ -55,9 +54,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private var coinsCollected: MutableSet<String>? = null
     private var wallet: MutableSet<String>? = null
 
-//    private val CONNECTION_TIMEOUT_MILLISECONDS = 15000
-//    private val CONNECTION_READTIMEOUT_MILLISECONDS = 10000
-
     private val purple = "#0000ff"
     private val red = "#ff0000"
     private val yellow = "#ffdf00"
@@ -66,9 +62,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private var prefs: SharedPrefs? = null
 
     private var downloadDate = "2018/10/03"
-
-    private var coinsConstraint: Int = 0
-
 
     private fun pickColorString(hex: String): String {
         when (hex) {
@@ -96,7 +89,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         currentUser = prefs!!.currentUser
         Log.d(tag, "Current user: $currentUser")
 
-        this.progressBar1.max = 25
+        coinsDisp.text = "You have collected ${prefs!!.coinConstraint} out of 50 coins today"
 
         coinsCollected = prefs!!.coinsCollected?.toMutableSet()
         wallet = prefs!!.wallet?.toMutableSet()
@@ -133,6 +126,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 prefs!!.mapfeat = mapfeat
                 prefs!!.lastDownloadDate = downloadDate
                 prefs!!.coinConstraint = 0
+                prefs!!.depositLimit = 0
             } else {
                 mapfeat = prefs!!.mapfeat
             }
@@ -184,7 +178,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                         markers[m] = coin
                     } else {
 
-                        Log.d(tag, "Coin collected $id or something wrong lol")
+                        Log.d(tag, "Coin collected $id")
                     }
                 }
             }
@@ -249,14 +243,21 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 //            //originLocation = location
 //            setCameraPosition(location)
 //        }
-//         Don't really need this...Do I
+        if (originLocation != null){
+            prefs!!.distanceWalked = prefs!!.distanceWalked + originLocation!!.distanceTo(location)
+        } else {
+            originLocation = location!!
+        }
+
+//
         var loccoinCollected: Marker? = null
-        //var coinCollected:Coin ?= null
+
+
 
         for ((marker, coin) in markers.iterator()) {
             val loc1 = Location("")
             loc1.latitude = location!!.latitude
-            loc1.longitude = location!!.longitude
+            loc1.longitude = location.longitude
 
             val loc2 = Location("")
             loc2.latitude = marker.position.latitude
@@ -277,16 +278,21 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
                 walletdb[coin.id] = coinCollected
 
-                if (coinsConstraint < 25) {
-                    this.progressBar1.progress = coinsConstraint++
-                }
+                prefs!!.coinConstraint = prefs!!.coinConstraint + 1
+                Log.d(tag, "The coin constraint is ${prefs!!.coinConstraint}")
+
+                coinsDisp.text = "You have collected ${prefs!!.coinConstraint} out of 50 coins today"
+
+                val sb = Snackbar.make(findViewById(R.id.layout),"You have collected a coin!", Snackbar.LENGTH_LONG)
+                        .setAction("Dismiss"){}
+                sb.show()
 
             }
         }
         markers.remove(loccoinCollected)
         val size = markers.size
         Log.d(tag, "Coins now: $size")
-        Toast.makeText(this, "There are now $size markers", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, "There are now $size markers", Toast.LENGTH_SHORT).show()
     }
 
 
@@ -327,6 +333,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         locationLayerPlugin?.onStop()
         mapView.onStop()
 
+        Log.d(tag, "Distance walked: ${prefs!!.distanceWalked}")
+
+        //Stores data in shared prefs when app is exited
         prefs!!.lastDownloadDate = downloadDate
         prefs?.coinsCollected = coinsCollected
         prefs?.wallet = wallet

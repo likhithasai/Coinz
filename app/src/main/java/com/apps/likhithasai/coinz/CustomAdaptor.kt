@@ -30,7 +30,6 @@ class CustomAdaptor(val wallet: MutableSet<String>?,val walletdb: MutableMap<Str
         val view = inflater.inflate(R.layout.rv_item, parent, false)
         prefs = SharedPrefs(context)
 
-        prefs!!.coinConstraint = 28
         return CustomViewHolder(view)
     }
 
@@ -62,7 +61,7 @@ class CustomAdaptor(val wallet: MutableSet<String>?,val walletdb: MutableMap<Str
             }
 
 
-            if (prefs!!.coinConstraint <= 25){
+            if (prefs!!.depositLimit <= 25){
                 val ref = FirebaseFirestore.getInstance().collection("UsersWallet").document(user!!)
                 var goldcoins:String = "0"
                 var newGold:BigDecimal = BigDecimal("0")
@@ -106,10 +105,12 @@ class CustomAdaptor(val wallet: MutableSet<String>?,val walletdb: MutableMap<Str
                         ref.update("gold", newGold.toString())
                         prefs!!.goldcoins = newGold.toString()
 
+                        prefs!!.depositLimit = prefs!!.depositLimit + 1
+
                         //val userdata = User(prefs!!.currentUserName, newGold.toString())
 
                         FirebaseFirestore.getInstance().collection("Leaderboards").document(prefs!!.currentUser).set(mapOf( "name" to prefs!!.currentUserName,
-                                "score" to newGold.toString()))
+                                "score" to newGold.toInt()))
 
 
                         ref.update(updates).addOnCompleteListener {
