@@ -22,7 +22,7 @@ class PlayerAdapter : RecyclerView.Adapter<PlayerAdapter.PlayerViewHolder>() {
         holder.bind(players[position], position)
     }
 
-    fun addPlayers(players: List<User>) {
+    fun addPlayers(players: ArrayList<User>) {
         this.players.apply {
             clear()
             addAll(players)
@@ -34,7 +34,7 @@ class PlayerAdapter : RecyclerView.Adapter<PlayerAdapter.PlayerViewHolder>() {
         fun bind(player: User, position: Int) {
             itemView.tv_position.text = (position + 1).toString()
             itemView.tv_name.text = player.name
-            itemView.tv_score.text = player.score
+            itemView.tv_score.text = player.score.toString()
         }
     }
 }

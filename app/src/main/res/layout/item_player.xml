@@ -13,16 +13,18 @@
     <RelativeLayout
         android:layout_width="32dp"
         android:layout_height="match_parent"
-        android:padding="5dp"
-        android:background="#33f58220">
+        android:background="@color/colorPrimary"
+        android:padding="5dp">
+
         <TextView
             android:id="@+id/tv_position"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:textStyle="bold"
+            android:textColor="@android:color/white"
             android:textSize="18sp"
-            tools:text="11"/>
+            android:textStyle="bold"
+            tools:text="11" />
     </RelativeLayout>
 
     <LinearLayout
@@ -38,10 +40,10 @@
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            tools:text="awidiyadew"
-            android:textStyle="bold"
             android:textAllCaps="true"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="testuser" />
 
         <TextView
             android:id="@+id/tv_nationality"
@@ -54,18 +56,20 @@
     </LinearLayout>
 
     <LinearLayout
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:gravity="center"
-                android:orientation="vertical">
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingLeft="8dp">
 
-            <TextView
-                android:id="@+id/tv_score"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="30sp"
-                android:textStyle="bold"
-                tools:text="54" />
+        <TextView
+            android:id="@+id/tv_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:paddingRight="15dp"
+            tools:text="0" />
     </LinearLayout>
 
 
