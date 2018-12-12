@@ -1,11 +1,12 @@
 package com.apps.likhithasai.coinz
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 
 class SharedPrefs(applicationContext: Context?) {
 
-    private var pref = applicationContext?.getApplicationContext()?.getSharedPreferences("MyPref", MODE_PRIVATE)
+    private var pref = applicationContext?.applicationContext?.getSharedPreferences("MyPref", MODE_PRIVATE)
     private var editor = pref?.edit()
 
     var mapfeat: String
@@ -14,7 +15,10 @@ class SharedPrefs(applicationContext: Context?) {
 
     var currentUser : String
         get() = pref!!.getString("current user", "")
-        set(value) = pref!!.edit()!!.putString("current user", value).apply()
+        @SuppressLint("CommitPrefEdits")
+        set(value) {
+            pref!!.edit()!!.putString("current user", value).apply()
+        }
 
     var currentUserName : String
         get() = pref!!.getString("current username", "")
@@ -48,37 +52,19 @@ class SharedPrefs(applicationContext: Context?) {
         get() = pref!!.getFloat("$currentUser distance walked", 0F)
         set(value) = pref!!.edit()!!.putFloat("$currentUser distance walked", value).apply()
 
-//    var peny : String
-//        get() = pref!!.getString("$currentUser total peny", "0")
-//        set(value) = editor!!.putString("$currentUser total peny", value).apply()
-//
-//    var dolr : String
-//        get() = pref!!.getString("$currentUser total dolr", "0")
-//        set(value) = editor!!.putString("$currentUser total dolr", value).apply()
-//
-//    var quid : String
-//        get() = pref!!.getString("$currentUser total quid", "0")
-//        set(value) = editor!!.putString("$currentUser total quid", value).apply()
-//
-//    var shil : String
-//        get() = pref!!.getString("$currentUser total shil", "0")
-//        set(value) = editor!!.putString("$currentUser total shil", value).apply()
-
-    //Rates for the day
-
-    var peny_rate : String
+    var penyRate : String
         get() = pref!!.getString("$currentUser peny rate", "0")
         set(value) = editor!!.putString("$currentUser peny rate", value).apply()
 
-    var dolr_rate : String
+    var dolrRate : String
         get() = pref!!.getString("$currentUser dolr rate", "0")
         set(value) = editor!!.putString("$currentUser dolr rate", value).apply()
 
-    var quid_rate : String
+    var quidRate : String
         get() = pref!!.getString("$currentUser quid rate", "0")
         set(value) = editor!!.putString("$currentUser quid rate", value).apply()
 
-    var shil_rate : String
+    var shilRate : String
         get() = pref!!.getString("$currentUser shil rate", "0")
         set(value) = editor!!.putString("$currentUser shil rate", value).apply()
 

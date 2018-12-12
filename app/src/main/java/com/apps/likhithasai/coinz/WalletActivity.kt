@@ -2,6 +2,7 @@ package com.apps.likhithasai.coinz
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
@@ -27,10 +28,10 @@ class WalletActivity : AppCompatActivity() {
         setContentView(R.layout.activity_wallet)
 
         prefs = SharedPrefs(applicationContext)
-        val shilRate = prefs!!.shil_rate
-        val dolrRate = prefs!!.dolr_rate
-        val penyRate = prefs!!.peny_rate
-        val quidRate = prefs!!.quid_rate
+        val shilRate = prefs!!.shilRate
+        val dolrRate = prefs!!.dolrRate
+        val penyRate = prefs!!.penyRate
+        val quidRate = prefs!!.quidRate
         val user = prefs!!.currentUser
 
 
@@ -75,6 +76,20 @@ class WalletActivity : AppCompatActivity() {
                 myCallback.onCallBack(wallet, walletdb.toMutableMap())
             }
         }
+    }
+
+    fun displaytextgold(){
+        Log.d(tag, "Inside display text gold")
+        val sb = Snackbar.make(findViewById(R.id.layout),"You have deposited gold!", Snackbar.LENGTH_LONG)
+                .setAction("Dismiss"){}
+        sb.show()
+    }
+
+    fun displaytextsparechange(){
+        Log.d(tag, "Inside display spare change")
+        val sb = Snackbar.make(findViewById(R.id.layout),"You have deposited spare change!", Snackbar.LENGTH_LONG)
+                .setAction("Dismiss"){}
+        sb.show()
     }
 
 

@@ -11,7 +11,15 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 
-
+/**
+ * Download Maps Class
+ *
+ * This class is responsible for thr download of the maps. It's an async task so that the download is done on a different
+ * thread from the main thread. It essentially gets the data from the URL and converts it to a JSON string.
+ *
+ * @property caller An object of the DownloadCompleteListener interface to help access the String produced from download of the maps
+ */
+@Suppress("UNREACHABLE_CODE")
 class DownloadFeaturesTask(private val caller: DownloadCompleteListener) : AsyncTask<String, Void, String>() {
         @SuppressLint("StaticFieldLeak")
         var context:Context ?= null
@@ -40,7 +48,7 @@ class DownloadFeaturesTask(private val caller: DownloadCompleteListener) : Async
                     if (line != null) {
                         result += line
                     }
-                } while (line != null)
+                } while (true)
                 stream.close()
             } catch (ex: Exception) {
 

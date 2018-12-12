@@ -15,7 +15,6 @@ import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.content_navigator.*
 import java.math.BigDecimal
@@ -33,6 +32,7 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     private val tag = "Navigator"
     private var prefs: SharedPrefs? = null
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigator)
@@ -40,42 +40,6 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         val playButton = findViewById<Button>(R.id.button)
         prefs = SharedPrefs(applicationContext)
-
-
-        val shilRate = prefs!!.shil_rate
-        val dolrRate = prefs!!.dolr_rate
-        val quidRate = prefs!!.quid_rate
-        val penyRate = prefs!!.peny_rate
-
-        //A marquee to show the rates
-        val tv = findViewById<TextView>(R.id.mywidget)
-        tv.text = "Rates for today: SHIL to GOLD: $shilRate DOLR to GOLD: $dolrRate QUID to GOLD: $quidRate PENY to GOLD: $penyRate"
-        tv!!.isSelected = true  // Set focus to the textview
-
-        //Display the gold, spare change and user name
-        if (prefs!!.goldcoins.equals("0") && prefs!!.spareChange.equals("0")){
-            goldDisp.text = "0"
-            spareChangeDisp.text = "0"
-
-        } else {
-            readData(object : GoldCallBack{
-                override fun onCallBack(gold: String) {
-                    var gold: BigDecimal = gold.toBigDecimal().setScale(5, RoundingMode.CEILING)
-                    goldDisp.text = "$gold"
-                    prefs!!.goldcoins = gold.toString()
-
-                }
-            }, "gold")
-
-            readData(object : GoldCallBack{
-                override fun onCallBack(sparechange: String) {
-                    var sparechange: BigDecimal = sparechange.toBigDecimal().setScale(5, RoundingMode.CEILING)
-                    spareChangeDisp.text = "$sparechange"
-                    prefs!!.spareChange = sparechange.toString()
-
-                }
-            }, "sparechange")
-        }
 
 
         userDisp.text = "User logged in: ${prefs!!.currentUserName}"
@@ -124,8 +88,45 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
      * obtained from shared prefs
      */
     private fun setUpInfo() {
-        //Initialising shared prefs object to access data
-        //Delete this later
+        Log.d(tag, "inside onStart")
+
+        prefs = SharedPrefs(applicationContext)
+
+
+        val shilRate = prefs!!.shilRate
+        val dolrRate = prefs!!.shilRate
+        val quidRate = prefs!!.quidRate
+        val penyRate = prefs!!.penyRate
+
+        //A marquee to show the rates
+        val tv = findViewById<TextView>(R.id.mywidget)
+        tv.text = "Rates for today: SHIL to GOLD: $shilRate DOLR to GOLD: $dolrRate QUID to GOLD: $quidRate PENY to GOLD: $penyRate"
+        tv!!.isSelected = true  // Set focus to the textview
+
+        //Display the gold, spare change and user name
+        if (prefs!!.goldcoins == "0" && prefs!!.spareChange == "0"){
+            goldDisp.text = "0"
+            spareChangeDisp.text = "0"
+
+        } else {
+            readData(object : GoldCallBack{
+                override fun onCallBack(result: String) {
+                    val gold: BigDecimal = result.toBigDecimal().setScale(5, RoundingMode.CEILING)
+                    goldDisp.text = "$gold"
+                    prefs!!.goldcoins = gold.toString()
+
+                }
+            }, "gold")
+
+            readData(object : GoldCallBack{
+                override fun onCallBack(result: String) {
+                    val sparechange: BigDecimal = result.toBigDecimal().setScale(5, RoundingMode.CEILING)
+                    spareChangeDisp.text = "$sparechange"
+                    prefs!!.spareChange = sparechange.toString()
+
+                }
+            }, "sparechange")
+        }
     }
 
     override fun onBackPressed() {
@@ -200,8 +201,8 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     }
 
     private fun readData(myCallBack: GoldCallBack, key: String?) {
-        var gold:Any ?= null
-        var sparechange:Any ?= null
+        var gold: Any?
+        var sparechange:Any?
         if (key.equals("gold")){
             FirebaseFirestore.getInstance().collection("UsersWallet").document(prefs!!.currentUser).get().addOnSuccessListener {
                 if (it.exists()){
@@ -209,7 +210,7 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     if (gold == null){
                         gold = "0"
                     }
-                    Log.d(tag, "Old Gold" + gold)
+                    Log.d(tag, "Old Gold$gold")
                     myCallBack.onCallBack(gold as String)
                 }
                 else{
@@ -223,7 +224,7 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                    if (sparechange == null){
                        sparechange = "0"
                    }
-                   Log.d(tag, "Old sparechange" + sparechange)
+                   Log.d(tag, "Old sparechange$sparechange")
                    myCallBack.onCallBack(sparechange as String)
                } else
                {
@@ -240,90 +241,13 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
     override fun onResume() {
         super.onResume()
-
-        Log.d(tag, "inside onResume")
-        prefs = SharedPrefs(applicationContext)
-
-
-        val shilRate = prefs!!.shil_rate
-        val dolrRate = prefs!!.dolr_rate
-        val quidRate = prefs!!.quid_rate
-        val penyRate = prefs!!.peny_rate
-
-        //A marquee to show the rates
-        val tv = findViewById<TextView>(R.id.mywidget)
-        tv.text = "Rates for today: SHIL to GOLD: $shilRate DOLR to GOLD: $dolrRate QUID to GOLD: $quidRate PENY to GOLD: $penyRate"
-        tv!!.isSelected = true  // Set focus to the textview
-
-        //Display the gold, spare change and user name
-        if (prefs!!.goldcoins.equals("0") && prefs!!.spareChange.equals("0")){
-            goldDisp.text = "0"
-            spareChangeDisp.text = "0"
-
-        } else {
-            readData(object : GoldCallBack{
-                override fun onCallBack(gold: String) {
-                    var gold: BigDecimal = gold.toBigDecimal().setScale(5, RoundingMode.CEILING)
-                    goldDisp.text = "$gold"
-                    prefs!!.goldcoins = gold.toString()
-
-                }
-            }, "gold")
-
-            readData(object : GoldCallBack{
-                override fun onCallBack(sparechange: String) {
-                    var sparechange: BigDecimal = sparechange.toBigDecimal().setScale(5, RoundingMode.CEILING)
-                    spareChangeDisp.text = "$sparechange"
-                    prefs!!.spareChange = sparechange.toString()
-
-                }
-            }, "sparechange")
-        }
+        setUpInfo()
 
     }
 
     override fun onStart() {
         super.onStart()
-
-        Log.d(tag, "inside onStart")
-
-        prefs = SharedPrefs(applicationContext)
-
-
-        val shilRate = prefs!!.shil_rate
-        val dolrRate = prefs!!.dolr_rate
-        val quidRate = prefs!!.quid_rate
-        val penyRate = prefs!!.peny_rate
-
-        //A marquee to show the rates
-        val tv = findViewById<TextView>(R.id.mywidget)
-        tv.text = "Rates for today: SHIL to GOLD: $shilRate DOLR to GOLD: $dolrRate QUID to GOLD: $quidRate PENY to GOLD: $penyRate"
-        tv!!.isSelected = true  // Set focus to the textview
-
-        //Display the gold, spare change and user name
-        if (prefs!!.goldcoins.equals("0") && prefs!!.spareChange.equals("0")){
-            goldDisp.text = "0"
-            spareChangeDisp.text = "0"
-
-        } else {
-            readData(object : GoldCallBack{
-                override fun onCallBack(gold: String) {
-                    var gold: BigDecimal = gold.toBigDecimal().setScale(5, RoundingMode.CEILING)
-                    goldDisp.text = "$gold"
-                    prefs!!.goldcoins = gold.toString()
-
-                }
-            }, "gold")
-
-            readData(object : GoldCallBack{
-                override fun onCallBack(sparechange: String) {
-                    var sparechange: BigDecimal = sparechange.toBigDecimal().setScale(5, RoundingMode.CEILING)
-                    spareChangeDisp.text = "$sparechange"
-                    prefs!!.spareChange = sparechange.toString()
-
-                }
-            }, "sparechange")
-        }
+        setUpInfo()
     }
 
 }

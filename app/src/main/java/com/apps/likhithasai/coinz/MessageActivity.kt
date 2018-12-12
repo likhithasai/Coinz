@@ -47,38 +47,43 @@ class MessageActivity : AppCompatActivity() {
 
     private fun sendMessage() {
         if (amtSend != null){
-            val newMessage = mapOf(
-                    NAME_FIELD to prefs!!.currentUserName,
-                    TEXT_FIELD to amtSend.text.toString())
-            firestoreChat.document(userSend.text.toString()).set(newMessage)
-                    .addOnSuccessListener {
-                        Toast.makeText(this@MessageActivity, "Message Sent", Toast.LENGTH_SHORT).show()
+            if(!userSend.text.equals(prefs!!.currentUserName)){
+                val newMessage = mapOf(
+                        NAME_FIELD to prefs!!.currentUserName,
+                        TEXT_FIELD to amtSend.text.toString())
+                firestoreChat.document(userSend.text.toString()).set(newMessage)
+                        .addOnSuccessListener {
+                            Toast.makeText(this@MessageActivity, "Message Sent", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e -> Log.e("ERROR", e.message) }
+
+                var newSpareChange:BigDecimal
+
+                readData(object : GoldCallBack{
+                    override fun onCallBack(result: String) {
+                        //Enter condition to see that value entered is less than
+                        val oldSpareChange: BigDecimal = result.toBigDecimal().setScale(3, RoundingMode.CEILING)
+                        Log.d(tag,"Old spare change in: $oldSpareChange")
+                        newSpareChange = oldSpareChange - amtSend.text.toString().toBigDecimal().setScale(3, RoundingMode.CEILING)
+                        newSpareChange = newSpareChange.setScale(5, RoundingMode.CEILING)
+                        Log.d(tag,"New Gold: $newSpareChange")
+
+                        FirebaseFirestore.getInstance().collection("UsersWallet").document(prefs!!.currentUser).update("sparechange", newSpareChange.toString()).addOnSuccessListener {
+                            Log.d(tag, "Spare Change updated")
+                        }
+
+                        prefs!!.spareChange = newSpareChange.toString()
+
+                        spareChange.text = "${prefs!!.spareChange} gold coins"
+
+
+
                     }
-                    .addOnFailureListener { e -> Log.e("ERROR", e.message) }
-
-            var newSpareChange:BigDecimal
-
-            readData(object : GoldCallBack{
-                override fun onCallBack(result: String) {
-                    //Enter condition to see that value entered is less than
-                    val oldSpareChange: BigDecimal = result.toBigDecimal().setScale(3, RoundingMode.CEILING)
-                    Log.d(tag,"Old spare change in: $oldSpareChange")
-                    newSpareChange = oldSpareChange - amtSend.text.toString().toBigDecimal().setScale(3, RoundingMode.CEILING)
-                    newSpareChange = newSpareChange.setScale(5, RoundingMode.CEILING)
-                    Log.d(tag,"New Gold: $newSpareChange")
-
-                    FirebaseFirestore.getInstance().collection("UsersWallet").document(prefs!!.currentUser).update("sparechange", newSpareChange.toString()).addOnSuccessListener {
-                        Log.d(tag, "Spare Change updated")
-                    }
-
-                    prefs!!.spareChange = newSpareChange.toString()
-
-                    spareChange.text = "${prefs!!.spareChange} gold coins"
-
-
-
-                }
-            }, "sparechange")
+                }, "sparechange")
+            }
+            else {
+                Toast.makeText(this, "Nice try but you can't send gold to your self", Toast.LENGTH_LONG)
+            }
         } else {
             Toast.makeText(this, "Enter a valid value for amount", Toast.LENGTH_LONG)
         }

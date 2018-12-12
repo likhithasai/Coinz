@@ -33,6 +33,15 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 
+
+/**
+ * Activity for user login
+ *
+ * The class authenticates a user using FireBase authentication. If the user details
+ * exist in the database, then the user is directed to the landing page of the app, else
+ * the user will be shown an invalid login message
+ *
+ */
 class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback {
 
     private lateinit var mapView: MapView
@@ -121,12 +130,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             val mapfeat: String
 
             if (downloadDate != prefs!!.lastDownloadDate) {
+
                 val url = "http://homepages.inf.ed.ac.uk/stg/coinz/$downloadDate/coinzmap.geojson"
                 mapfeat = DownloadFeaturesTask(DownloadCompleteRunner).execute(url).get()
                 prefs!!.mapfeat = mapfeat
                 prefs!!.lastDownloadDate = downloadDate
                 prefs!!.coinConstraint = 0
                 prefs!!.depositLimit = 0
+
             } else {
                 mapfeat = prefs!!.mapfeat
             }
@@ -137,10 +148,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             val jsonObj = JSONObject(mapfeat)
             val rates = jsonObj.getJSONObject("rates")
 
-            prefs!!.shil_rate = rates.getString("SHIL")
-            prefs!!.dolr_rate = rates.getString("DOLR")
-            prefs!!.quid_rate = rates.getString("QUID")
-            prefs!!.peny_rate = rates.getString("PENY")
+            prefs!!.shilRate = rates.getString("SHIL")
+            prefs!!.dolrRate = rates.getString("DOLR")
+            prefs!!.quidRate = rates.getString("QUID")
+            prefs!!.penyRate = rates.getString("PENY")
 
 
             val featureCollection: FeatureCollection = FeatureCollection.fromJson(mapfeat)
