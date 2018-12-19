@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "351709862256-2j1flfaqvhr7moh64uakbeg3ul404tst.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.apps.likhithasai.coinz",
+            "certificate_hash": "7efe13768ef60d10b4da7b1b5618e46f62f1d925"
+          }
+        },
+        {
+          "client_id": "351709862256-18q723vgob0ajqv6k5nllb2a8de6n3tg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.apps.likhithasai.coinz",
+            "certificate_hash": "66bc74f28b00b3c6c1e703db57a52d4a29524960"
+          }
+        },
+        {
           "client_id": "351709862256-298l68q9idfmptcprcknt2euo06i9vm5.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +45,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "351709862256-298l68q9idfmptcprcknt2euo06i9vm5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
