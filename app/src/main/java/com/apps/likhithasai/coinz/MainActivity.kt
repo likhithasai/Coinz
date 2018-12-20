@@ -35,11 +35,7 @@ import kotlin.collections.HashMap
 
 
 /**
- * Activity for user login
- *
- * The class authenticates a user using FireBase authentication. If the user details
- * exist in the database, then the user is directed to the landing page of the app, else
- * the user will be shown an invalid login message
+ * Activity for displaying the map
  *
  */
 class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback {
@@ -51,8 +47,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private val tag = "MainActivity"
     //private val markers: kotlin.collections.MutableList<Marker> = java.util.ArrayList()
 
+    //Key value pair to store the coins
     private var markers = HashMap<Marker, Coin>()
 
+    //Wallet to upload to FireStore
     private var walletdb = HashMap<String, Any>()
 
     private var locationEngine: LocationEngine? = null
@@ -72,6 +70,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
     private var downloadDate = "2018/10/03"
 
+    /**
+     * Function to help convert hex code to a letter to help in image file retrival
+     *@param hex is the hex to be converted a string
+     */
     private fun pickColorString(hex: String): String {
         when (hex) {
             purple -> return "p"
@@ -94,10 +96,12 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Object of prefs to access the data in Shared Preferences
         prefs = SharedPrefs(applicationContext)
         currentUser = prefs!!.currentUser
         Log.d(tag, "Current user: $currentUser")
 
+        // Set the progress bar
         coinsDisp.text = "You have collected ${prefs!!.coinConstraint} out of 50 coins today"
 
         coinsCollected = prefs!!.coinsCollected?.toMutableSet()
@@ -129,6 +133,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
             val mapfeat: String
 
+            //If download data is different, then download new map or else retrieve from shared prefs
             if (downloadDate != prefs!!.lastDownloadDate) {
 
                 val url = "http://homepages.inf.ed.ac.uk/stg/coinz/$downloadDate/coinzmap.geojson"
@@ -157,6 +162,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             val featureCollection: FeatureCollection = FeatureCollection.fromJson(mapfeat)
             val features: List<Feature>? = featureCollection.features()
 
+            //Iterate through features
             for (f in features!!.iterator()) {
                 if (f.geometry() is Point) {
                     val id = f.getStringProperty("id")
@@ -188,7 +194,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                         val coin = Coin(id = id, currency = currency, value = value)
                         markers[m] = coin
                     } else {
-
                         Log.d(tag, "Coin collected $id")
                     }
                 }
@@ -254,6 +259,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 //            //originLocation = location
 //            setCameraPosition(location)
 //        }
+        //Calculate distance
         if (originLocation != null){
             prefs!!.distanceWalked = prefs!!.distanceWalked + originLocation!!.distanceTo(location)
         } else {
@@ -274,16 +280,17 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             loc2.latitude = marker.position.latitude
             loc2.longitude = marker.position.longitude
 
+            //Calculate distance
             val distanceInMeters = loc1.distanceTo(loc2)
 
             if (distanceInMeters <= 25) {
                 Log.d(tag, "Coin collected!")
                 marker.remove()
                 loccoinCollected = marker
-                //coinCollected = coin
+
                 val coinCollected = coin.currency + coin.value
                 Log.d(tag, "Coin collected: $coinCollected")
-                //Log.d(tag, "Coin ID: ${coinCollected.id}")
+
                 coinsCollected!!.add(coin.id)
                 wallet!!.add(coinCollected)
 
@@ -292,6 +299,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 prefs!!.coinConstraint = prefs!!.coinConstraint + 1
                 Log.d(tag, "The coin constraint is ${prefs!!.coinConstraint}")
 
+                // Code to show snackbar
                 coinsDisp.text = "You have collected ${prefs!!.coinConstraint} out of 50 coins today"
 
                 val sb = Snackbar.make(findViewById(R.id.layout),"You have collected a coin!", Snackbar.LENGTH_LONG)
@@ -351,6 +359,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         prefs?.coinsCollected = coinsCollected
         prefs?.wallet = wallet
 
+        //Stores wallet in firebase
         val ref = FirebaseFirestore.getInstance().collection("UsersWallet")
         val documentId = prefs!!.currentUser
 

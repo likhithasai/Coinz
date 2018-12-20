@@ -35,6 +35,9 @@ class LeaderboardActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * loadPlayers gets data from querying database and creates a list to send to the recycler view
+     */
     private fun loadPlayers() {
 
         val db = FirebaseFirestore.getInstance()

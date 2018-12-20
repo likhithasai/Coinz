@@ -6,7 +6,6 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_navigator.*
 import kotlinx.android.synthetic.main.app_bar_navigator.*
@@ -14,7 +13,6 @@ import android.content.Intent
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
-import com.apps.likhithasai.coinz.R.id.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.content_navigator.*
@@ -212,7 +210,7 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                         gold = "0"
                     }
                     Log.d(tag, "Old Gold$gold")
-                    myCallBack.onCallBack(gold as String)
+                    myCallBack.onCallBack(gold.toString())
                 }
                 else{
                     myCallBack.onCallBack("0")
@@ -226,7 +224,7 @@ class Navigator : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                        sparechange = "0"
                    }
                    Log.d(tag, "Old sparechange$sparechange")
-                   myCallBack.onCallBack(sparechange as String)
+                   myCallBack.onCallBack(sparechange.toString())
                } else
                {
                    myCallBack.onCallBack("0")

@@ -11,6 +11,10 @@ import kotlinx.android.synthetic.main.activity_message.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 
+/**
+ *Activity class for messaging spare change
+ *
+ */
 class MessageActivity : AppCompatActivity() {
 
     private val tag = "MessageActivity"
@@ -36,7 +40,6 @@ class MessageActivity : AppCompatActivity() {
 
         spareChange.text = prefs!!.spareChange
 
-        //val users: MutableList<String> ?= null
 
 
         realtimeUpdateListener()
@@ -44,7 +47,10 @@ class MessageActivity : AppCompatActivity() {
 
     }
 
-
+    /**
+     * sendMessage function sends the message from current user to the user the user chooses to send their
+     * spare change to
+     */
     private fun sendMessage() {
         if (amtSend != null){
             if(!userSend.text.equals(prefs!!.currentUserName)){
@@ -91,6 +97,10 @@ class MessageActivity : AppCompatActivity() {
     }
 
 
+    /**
+     * realTimeUpdate Listener reads the database to see if the current user has any coins that
+     * other users sent to them and updates their gold.
+     */
     private fun realtimeUpdateListener() {
         var goldSent:String ?= null
         firestoreChat.document(prefs!!.currentUserName).addSnapshotListener { documentSnapshot, e ->
@@ -146,6 +156,12 @@ class MessageActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * reaData function reads the gold and sparechange value of a user according to the key
+     *
+     * @param myCallBack The GoldCallBack interface object to help with the callback wrap up
+     * @param key the key to read gold/sparechange
+     */
     private fun readData(myCallBack: GoldCallBack, key: String?) {
         var gold:Any?
         var sparechange: Any?

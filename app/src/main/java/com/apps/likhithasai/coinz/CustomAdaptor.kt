@@ -141,6 +141,7 @@ class CustomAdaptor(private val wallet: MutableSet<String>?, private val walletd
                     override fun onCallBack(result: String) {
                         sparechange = result
                         when (currency) {
+                            //Calculate new amount of gold and update database
                             "PENY" -> {
                                 val oldGold:BigDecimal = sparechange.toBigDecimal().setScale(5, RoundingMode.CEILING)
                                 Log.d(tag,"Old Gold in: $oldGold")
@@ -199,7 +200,12 @@ class CustomAdaptor(private val wallet: MutableSet<String>?, private val walletd
 
     }
 
-
+    /**
+     * reaData function reads the gold and sparechange value of a user according to the key
+     *
+     * @param myCallBack The GoldCallBack interface object to help with the callback wrap up
+     * @param key the key to read gold/sparechange
+     */
     private fun readData(myCallBack: GoldCallBack, key: String?) {
         var gold:Any?
         var sparechange: Any?
