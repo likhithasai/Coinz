@@ -9,6 +9,7 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 /**
  * Activity for creating an account for a user
@@ -88,10 +89,18 @@ class CreatAccountActivity : AppCompatActivity() {
      * The user can login with their new details.
      */
     private fun updateUI() {
+        val ref = FirebaseFirestore.getInstance().collection("UsersWallet")
+
+        ref.document(mAuth?.currentUser!!.uid).set(mapOf("gold" to "0", "sparechange" to 0))
+                .addOnSuccessListener {
+                    Log.d(tag, "Things added")
+                }
+
         val intent = Intent(this@CreatAccountActivity, LoginActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
         finish()
     }
+
 
 }
